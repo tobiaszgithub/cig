@@ -72,6 +72,18 @@ func (r *IPByIdResponse) Print() {
 	fmt.Println(string(b))
 }
 
+type FlowByIdResponse struct {
+	D IntegrationFlow `json:"d"`
+}
+
+func (r *FlowByIdResponse) Print() {
+	b, err := json.MarshalIndent(r, "", "\t")
+	if err != nil {
+		panic("Could not Marshal IPByIdResponse")
+	}
+	fmt.Println(string(b))
+}
+
 type IntegrationFlow struct {
 	Metadata    Metadata `json:"__metadata"`
 	ID          string   `json:"Id"`

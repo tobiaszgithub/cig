@@ -178,3 +178,31 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 
 	return nil
 }
+
+func InspectFlow(conf config.Configuration, fileName string) (*model.FlowByIdResponse, error) {
+	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + fileName + "',Version='active')"
+	log.Println(flowURL)
+	request, err := http.NewRequest("GET", flowURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Accept", "application/json")
+
+	httpClient := GetClient(conf)
+
+	response, err := httpClient.Do(request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	var decodedRes model.FlowByIdResponse
+
+	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
+		return nil, err
+	}
+
+	return &decodedRes, err
+}
