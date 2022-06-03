@@ -3,7 +3,12 @@ package client
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/beeekind/go-authhttp"
 	"github.com/tobiaszgithub/cig/config"
@@ -64,4 +69,112 @@ func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error
 
 	return &decodedRes, err
 
+}
+
+func InspectIntegrationPackage(conf config.Configuration, packageName string) (*model.IPByIdResponse, error) {
+	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')"
+
+	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Accept", "application/json")
+
+	httpClient := GetClient(conf)
+
+	rawRes, err := httpClient.Do(request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rawRes.Body.Close()
+
+	var decodedRes model.IPByIdResponse
+
+	if err := json.NewDecoder(rawRes.Body).Decode(&decodedRes); err != nil {
+		return nil, err
+	}
+
+	return &decodedRes, err
+}
+
+func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string) (*model.IPByIdResponse, error) {
+	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')/IntegrationDesigntimeArtifacts"
+
+	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Accept", "application/json")
+
+	httpClient := GetClient(conf)
+
+	response, err := httpClient.Do(request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	var decodedRes model.IPByIdResponse
+
+	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
+		return nil, err
+	}
+
+	return &decodedRes, err
+
+}
+
+func DownloadIntegrationPackage(conf config.Configuration, packageName string) error {
+	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')/$value"
+
+	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
+	if err != nil {
+		return err
+	}
+	request.Header.Set("Accept", "application/json")
+
+	httpClient := GetClient(conf)
+
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+
+		bodyBytes, err := io.ReadAll(response.Body)
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf(string(bodyBytes))
+	}
+
+	defer response.Body.Close()
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	packageOutPath := filepath.Join(cwd, packageName+".zip")
+	//log.Println(packageOutPath)
+
+	out, err := os.Create(packageOutPath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	n, err := io.Copy(out, response.Body)
+	if err != nil {
+		return err
+	}
+	log.Println(packageOutPath + " created")
+	log.Println("number of bytes: ", n)
+
+	return nil
 }

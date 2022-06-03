@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -8,16 +9,30 @@ import (
 )
 
 type IntegrationPackage struct {
-	Id   string `json:"Id"`
-	Name string `json:"Name"`
+	ID                string `json:"Id"`
+	Name              string `json:"Name"`
+	Description       string `json:"Description"`
+	ShortText         string `json:"ShortText"`
+	Version           string `json:"Version"`
+	Vendor            string `json:"Vendor"`
+	PartnerContent    bool   `json:"PartnerContent"`
+	UpdateAvailable   bool   `json:"UpdateAvailable"`
+	Mode              string `json:"Mode"`
+	SupportedPlatform string `json:"SupportedPlatform"`
+	ModifiedBy        string `json:"ModifiedBy"`
+	CreationDate      string `json:"CreationDate"`
+	ModifiedDate      string `json:"ModifiedDate"`
+	CreatedBy         string `json:"CreatedBy"`
+	Products          string `json:"Products"`
+	Keywords          string `json:"Keywords"`
+	Countries         string `json:"Countries"`
+	Industries        string `json:"Industries"`
+	LineOfBusiness    string `json:"LineOfBusiness"`
 }
 
-type IPResponse2 struct {
+type IPResponse struct {
 	D struct {
-		Results []struct {
-			ID   string `json:"Id"`
-			Name string `json:"Name"`
-		} `json:"results"`
+		Results []IntegrationPackage `json:"results"`
 	} `json:"d"`
 }
 
@@ -46,6 +61,7 @@ func (r *IPResponse) Print() {
 			//		PartnerContent:  ip.PartnerContent,
 			UpdateAvailable: ip.UpdateAvailable,
 			Mode:            ip.Mode,
+			CreatedBy:       ip.CreatedBy,
 		}
 		responsePrinter.D.Results = append(responsePrinter.D.Results, ipprinter)
 
@@ -54,30 +70,41 @@ func (r *IPResponse) Print() {
 	tableprinter.Print(os.Stdout, responsePrinter.D.Results)
 }
 
-type IPResponse struct {
+type IPByIdResponse struct {
+	D IntegrationPackage `json:"d"`
+}
+
+func (r *IPByIdResponse) Print() {
+	b, err := json.MarshalIndent(r, "", "\t")
+	if err != nil {
+		panic("Could not Marshal IPByIdResponse")
+	}
+	fmt.Println(string(b))
+}
+
+type IntegrationFlow struct {
+	Metadata    Metadata `json:"__metadata"`
+	ID          string   `json:"Id"`
+	Version     string   `json:"Version"`
+	PackageID   string   `json:"PackageId"`
+	Name        string   `json:"Name"`
+	Description string   `json:"Description"`
+	Sender      string   `json:"Sender"`
+	Receiver    string   `json:"Receiver"`
+}
+
+type Metadata struct {
+	ID          string `json:"id"`
+	URI         string `json:"uri"`
+	Type        string `json:"type"`
+	ContentType string `json:"content_type"`
+	MediaSrc    string `json:"media_src"`
+	EditMedia   string `json:"edit_media"`
+}
+
+type FlowsOfIPResponse struct {
 	D struct {
-		Results []struct {
-			ID                string      `json:"Id"`
-			Name              string      `json:"Name"`
-			Description       string      `json:"Description"`
-			ShortText         string      `json:"ShortText"`
-			Version           string      `json:"Version"`
-			Vendor            string      `json:"Vendor"`
-			PartnerContent    bool        `json:"PartnerContent"`
-			UpdateAvailable   bool        `json:"UpdateAvailable"`
-			Mode              string      `json:"Mode"`
-			SupportedPlatform string      `json:"SupportedPlatform"`
-			ModifiedBy        string      `json:"ModifiedBy"`
-			CreationDate      string      `json:"CreationDate"`
-			ModifiedDate      string      `json:"ModifiedDate"`
-			CreatedBy         string      `json:"CreatedBy"`
-			Products          string      `json:"Products"`
-			Keywords          string      `json:"Keywords"`
-			Countries         string      `json:"Countries"`
-			Industries        string      `json:"Industries"`
-			LineOfBusiness    string      `json:"LineOfBusiness"`
-			PackageContent    interface{} `json:"PackageContent"`
-		} `json:"results"`
+		Results []IntegrationFlow `json:"results"`
 	} `json:"d"`
 }
 
@@ -91,6 +118,7 @@ type IPPrinter struct {
 	//	PartnerContent  bool   `header:"PartnerContent"`
 	UpdateAvailable bool   `header:"UpdateAvailable"`
 	Mode            string `header:"Mode"`
+	CreatedBy       string `header:"CreatedBy"`
 }
 
 type IPResponsePrinter struct {

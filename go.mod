@@ -5,6 +5,12 @@ go 1.18
 require golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401
 
 require (
+	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/spf13/cobra v1.4.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
+)
+
+require (
 	github.com/beeekind/go-authhttp v0.0.0-20170604023458-34d5e23b706f
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
