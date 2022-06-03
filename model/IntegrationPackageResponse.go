@@ -37,16 +37,6 @@ type IPResponse struct {
 }
 
 func (r *IPResponse) Print() {
-	//	fmt.Println("ID Name")
-
-	var text string
-	for _, ip := range r.D.Results {
-		text += fmt.Sprintf(
-			"%s %s\n",
-			ip.ID, ip.Name)
-	}
-
-	//	println(text)
 
 	var responsePrinter IPResponsePrinter
 
@@ -106,6 +96,49 @@ type FlowsOfIPResponse struct {
 	D struct {
 		Results []IntegrationFlow `json:"results"`
 	} `json:"d"`
+}
+
+func (r *FlowsOfIPResponse) Print() {
+
+	var responsePrinter FlowsOfIPResponsePrinter
+
+	for _, ip := range r.D.Results {
+		flowprinter := FlowsOfIPPrinter{
+			ID:          ip.ID,
+			Version:     ip.Version,
+			PackageID:   ip.PackageID,
+			Name:        ip.Name,
+			Description: ip.Description,
+			Sender:      ip.Sender,
+			Receiver:    ip.Receiver,
+			//			Description:     ip.Description,
+			//			ShortText:       ip.ShortText,
+			//		Vendor:  ip.Vendor,
+			//		PartnerContent:  ip.PartnerContent,
+			//	UpdateAvailable: ip.UpdateAvailable,
+			//	Mode:            ip.Mode,
+			//	CreatedBy:       ip.CreatedBy,
+		}
+		responsePrinter.D.Results = append(responsePrinter.D.Results, flowprinter)
+
+	}
+
+	tableprinter.Print(os.Stdout, responsePrinter.D.Results)
+}
+
+type FlowsOfIPPrinter struct {
+	ID          string `header:"Id"`
+	Version     string `header:"Version"`
+	PackageID   string `header:"PackageId"`
+	Name        string `header:"Name"`
+	Description string `header:"Description"`
+	Sender      string `header:"Sender"`
+	Receiver    string `header:"Receiver"`
+}
+type FlowsOfIPResponsePrinter struct {
+	D struct {
+		Results []FlowsOfIPPrinter
+	}
 }
 
 type IPPrinter struct {

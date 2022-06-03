@@ -99,10 +99,10 @@ func InspectIntegrationPackage(conf config.Configuration, packageName string) (*
 	return &decodedRes, err
 }
 
-func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string) (*model.IPByIdResponse, error) {
-	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')/IntegrationDesigntimeArtifacts"
+func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string) (*model.FlowsOfIPResponse, error) {
+	flowsOfIntegrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')/IntegrationDesigntimeArtifacts"
 
-	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
+	request, err := http.NewRequest("GET", flowsOfIntegrationPackagesURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string)
 
 	defer response.Body.Close()
 
-	var decodedRes model.IPByIdResponse
+	var decodedRes model.FlowsOfIPResponse
 
 	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
 		return nil, err
