@@ -206,3 +206,54 @@ func InspectFlow(conf config.Configuration, fileName string) (*model.FlowByIdRes
 
 	return &decodedRes, err
 }
+
+func DownloadFlow(conf config.Configuration, flowName string) error {
+	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$value"
+
+	request, err := http.NewRequest("GET", flowURL, nil)
+	if err != nil {
+		return err
+	}
+	request.Header.Set("Accept", "application/json")
+
+	httpClient := GetClient(conf)
+
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+
+		bodyBytes, err := io.ReadAll(response.Body)
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf(string(bodyBytes))
+	}
+
+	defer response.Body.Close()
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	flowOutPath := filepath.Join(cwd, flowName+".zip")
+	//log.Println(packageOutPath)
+
+	out, err := os.Create(flowOutPath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	n, err := io.Copy(out, response.Body)
+	if err != nil {
+		return err
+	}
+	log.Println(flowOutPath + " created")
+	log.Println("number of bytes: ", n)
+
+	return nil
+}

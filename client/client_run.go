@@ -64,7 +64,7 @@ func RunDownloadIntegrationPackage(packageName string) {
 
 	err = DownloadIntegrationPackage(conf, packageName)
 	if err != nil {
-		log.Fatal("Error in InspectIntegrationPackage: ", err)
+		log.Fatal("Error in DownloadIntegrationPackage: ", err)
 	}
 
 }
@@ -80,6 +80,19 @@ func RunInspectFlow(flowName string) {
 		log.Fatal("Error in InspectFlow: ", err)
 	}
 	resp.Print()
+}
+
+func RunDownloadFlow(flowName string) {
+	conf, err := NewConfiguration()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = DownloadFlow(conf, flowName)
+	if err != nil {
+		log.Fatal("Error in DownloadFlow: ", err)
+	}
+
 }
 
 func NewConfiguration() (config.Configuration, error) {
