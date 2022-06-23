@@ -171,3 +171,27 @@ type IPResponsePrinter struct {
 		Results []IPPrinter
 	}
 }
+
+type FlowConfiguration struct {
+	Metadata struct {
+		ID   string `json:"id"`
+		URI  string `json:"uri"`
+		Type string `json:"type"`
+	} `json:"__metadata"`
+	ParameterKey   string `json:"ParameterKey"`
+	ParameterValue string `json:"ParameterValue"`
+	DataType       string `json:"DataType"`
+}
+type FlowConfigurations struct {
+	D struct {
+		Result []FlowConfiguration `json:"results"`
+	} `json:"d"`
+}
+
+func (r *FlowConfigurations) Print() {
+	b, err := json.MarshalIndent(r, "", "\t")
+	if err != nil {
+		panic("Could not Marshal IPByIdResponse")
+	}
+	fmt.Println(string(b))
+}

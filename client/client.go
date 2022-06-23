@@ -257,3 +257,31 @@ func DownloadFlow(conf config.Configuration, flowName string) error {
 
 	return nil
 }
+
+func GetConfigsFlow(conf config.Configuration, fileName string) (*model.FlowConfigurations, error) {
+	configsFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + fileName + "',Version='active')/Configurations"
+	log.Println(configsFlowURL)
+	request, err := http.NewRequest("GET", configsFlowURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Accept", "application/json")
+
+	httpClient := GetClient(conf)
+
+	response, err := httpClient.Do(request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	var decodedRes model.FlowConfigurations
+
+	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
+		return nil, err
+	}
+
+	return &decodedRes, err
+}
