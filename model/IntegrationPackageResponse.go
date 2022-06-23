@@ -184,12 +184,36 @@ type FlowConfiguration struct {
 }
 type FlowConfigurations struct {
 	D struct {
-		Result []FlowConfiguration `json:"results"`
+		Results []FlowConfiguration `json:"results"`
+	} `json:"d"`
+}
+
+type FlowConfigurationPrinter struct {
+	ParameterKey   string `json:"ParameterKey"`
+	ParameterValue string `json:"ParameterValue"`
+	DataType       string `json:"DataType"`
+}
+
+type FlowConfigurationsPrinter struct {
+	D struct {
+		Results []FlowConfigurationPrinter `json:"results"`
 	} `json:"d"`
 }
 
 func (r *FlowConfigurations) Print() {
-	b, err := json.MarshalIndent(r, "", "\t")
+	var responsePrinter FlowConfigurationsPrinter
+
+	for _, r := range r.D.Results {
+		configPrinter := FlowConfigurationPrinter{
+			ParameterKey:   r.ParameterKey,
+			ParameterValue: r.ParameterValue,
+			DataType:       r.DataType,
+		}
+
+		responsePrinter.D.Results = append(responsePrinter.D.Results, configPrinter)
+	}
+
+	b, err := json.MarshalIndent(responsePrinter, "", "\t")
 	if err != nil {
 		panic("Could not Marshal IPByIdResponse")
 	}
