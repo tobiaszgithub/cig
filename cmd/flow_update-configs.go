@@ -11,11 +11,10 @@ import (
 	"github.com/tobiaszgithub/cig/client"
 )
 
-// flowConfigurationsCmd represents the flowConfigurations command
-var flowConfigurationsCmd = &cobra.Command{
-	Use:     "describe-configs",
-	Aliases: []string{"configs", "configurations"},
-	Short:   "A brief description of your command",
+// updateConfigsCmd represents the updateConfigs command
+var updateConfigsCmd = &cobra.Command{
+	Use:   "update-configs",
+	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -23,21 +22,30 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("flowConfigurations called")
-		client.RunGetFlowConfigs(args[0])
+
+		parameters, _ := cmd.Flags().GetStringArray("parameter")
+
+		fmt.Println(parameters)
+
+		fmt.Println("updateConfigs called")
+
+		client.RunUpdateFlowConfigs(args[0], parameters)
+
+		fmt.Println(args)
 	},
 }
 
 func init() {
-	flowCmd.AddCommand(flowConfigurationsCmd)
+	flowCmd.AddCommand(updateConfigsCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// flowConfigurationsCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// updateConfigsCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// flowConfigurationsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	updateConfigsCmd.Flags().StringArrayP("parameter", "p", []string{}, "Help message for toggle")
+	//	updateConfigsCmd.Flags().StringSliceP("parameters2", "r", []string{}, "Help message for toggle")
 }

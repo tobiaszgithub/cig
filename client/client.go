@@ -1,10 +1,12 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -258,8 +260,8 @@ func DownloadFlow(conf config.Configuration, flowName string) error {
 	return nil
 }
 
-func GetConfigsFlow(conf config.Configuration, fileName string) (*model.FlowConfigurations, error) {
-	configsFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + fileName + "',Version='active')/Configurations"
+func GetFlowConfigs(conf config.Configuration, flowName string) (*model.FlowConfigurations, error) {
+	configsFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/Configurations"
 	log.Println(configsFlowURL)
 	request, err := http.NewRequest("GET", configsFlowURL, nil)
 	if err != nil {
@@ -284,4 +286,42 @@ func GetConfigsFlow(conf config.Configuration, fileName string) (*model.FlowConf
 	}
 
 	return &decodedRes, err
+}
+
+func UpdateFlowConfigs(conf config.Configuration, flowName string, configParams []string) error {
+
+	parameterKey := "ExProp1Value"
+	updateFlowConfigsURL := conf.ApiURL +
+		"/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$links/Configurations('" + parameterKey + "')"
+	log.Println(updateFlowConfigsURL)
+
+	values := map[string]string{"ParameterValue": "Prop1Value123", "DataType": "xsd:string"}
+
+	jsonBody2, err := json.Marshal(values)
+	if err != nil {
+		return err
+	}
+
+	//var jsonBody = []byte(``)
+
+	request, err := http.NewRequest("PUT", updateFlowConfigsURL, bytes.NewBuffer(jsonBody2))
+	if err != nil {
+		return err
+	}
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json")
+
+	httpClient := GetClient(conf)
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	fmt.Println("response Status:", response.Status)
+	fmt.Println("response Headers:", response.Header)
+	body, _ := ioutil.ReadAll(response.Body)
+	fmt.Println("response Body:", string(body))
+	return nil
+
 }

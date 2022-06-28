@@ -140,14 +140,28 @@ func NewConfiguration() (config.Configuration, error) {
 	return conf, err
 }
 
-func RunGetConfigsFlow(flowName string) {
+func RunGetFlowConfigs(flowName string) {
 	conf, err := NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
-	resp, err := GetConfigsFlow(conf, flowName)
+	resp, err := GetFlowConfigs(conf, flowName)
 	if err != nil {
-		log.Fatal("Error in InspectFlow: ", err)
+		log.Fatal("Error in GetFlowConfigs: ", err)
 	}
 	resp.Print()
+}
+
+func RunUpdateFlowConfigs(flowName string, configParams []string) {
+	conf, err := NewConfiguration()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = UpdateFlowConfigs(conf, flowName, configParams)
+	if err != nil {
+		log.Fatal("Error in UpdateFlowConfigs: ", err)
+	}
+	//resp.Print()
+
 }
