@@ -5,8 +5,6 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
 )
@@ -25,13 +23,8 @@ to quickly create a Cobra application.`,
 
 		parameters, _ := cmd.Flags().GetStringArray("parameter")
 
-		fmt.Println(parameters)
-
-		fmt.Println("updateConfigs called")
-
 		client.RunUpdateFlowConfigs(args[0], parameters)
 
-		fmt.Println(args)
 	},
 }
 

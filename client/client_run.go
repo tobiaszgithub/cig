@@ -158,10 +158,12 @@ func RunUpdateFlowConfigs(flowName string, configParams []string) {
 		log.Fatal(err)
 	}
 
-	err = UpdateFlowConfigs(conf, flowName, configParams)
+	resp, err := UpdateFlowConfigs(conf, flowName, configParams)
 	if err != nil {
 		log.Fatal("Error in UpdateFlowConfigs: ", err)
 	}
+
+	fmt.Println(resp)
 	//resp.Print()
 
 }

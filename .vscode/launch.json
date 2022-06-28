@@ -5,13 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Package with arguments",
+      "name": "Launch Package with arguments - cloud-foundry-dev",
       "type": "go",
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceRoot}",
       "env": {},
       "args": ["flow", "update-configs", "PurchaseOrder", "-p", "Key=key1,Value=value1", "-p", "Key=key2,Value=value2", "-p", "Key=key5,Value=value5"]
+    },
+    {
+      "name": "Launch Package with arguments - hic-neo-dev",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceRoot}",
+      "env": {},
+      "args": ["flow", "update-configs", "THO_PACK01_IF_DemoRESTIFlow", "-p", "Key=bodySize,Value=99", "-p", "Key=key2,Value=value2", "-p", "Key=key5,Value=value5"]
     }
   ]
 }

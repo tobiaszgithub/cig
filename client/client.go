@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/beeekind/go-authhttp"
 	"github.com/tobiaszgithub/cig/config"
@@ -288,40 +289,84 @@ func GetFlowConfigs(conf config.Configuration, flowName string) (*model.FlowConf
 	return &decodedRes, err
 }
 
-func UpdateFlowConfigs(conf config.Configuration, flowName string, configParams []string) error {
+func UpdateFlowConfigs(conf config.Configuration, flowName string, configParams []string) (string, error) {
 
-	parameterKey := "ExProp1Value"
-	updateFlowConfigsURL := conf.ApiURL +
-		"/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$links/Configurations('" + parameterKey + "')"
-	log.Println(updateFlowConfigsURL)
-
-	values := map[string]string{"ParameterValue": "Prop1Value123", "DataType": "xsd:string"}
-
-	jsonBody2, err := json.Marshal(values)
+	csrfTokenURL := conf.ApiURL + "/"
+	tokenRequest, err := http.NewRequest("GET", csrfTokenURL, nil)
 	if err != nil {
-		return err
+		return "", err
 	}
+	tokenRequest.Header.Set("X-CSRF-Token", "Fetch")
+	tokenHttpClient := GetClient(conf)
 
-	//var jsonBody = []byte(``)
-
-	request, err := http.NewRequest("PUT", updateFlowConfigsURL, bytes.NewBuffer(jsonBody2))
+	tokenResponse, err := tokenHttpClient.Do(tokenRequest)
 	if err != nil {
-		return err
+		return "", err
 	}
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("Accept", "application/json")
+	defer tokenResponse.Body.Close()
+	csrfToken := tokenResponse.Header.Get("X-CSRF-Token")
+	cookies := tokenResponse.Cookies()
 
-	httpClient := GetClient(conf)
-	response, err := httpClient.Do(request)
-	if err != nil {
-		return err
+	var bodyStr string
+	for _, param := range configParams {
+		key, value, err := parseParam(param)
+		if err != nil {
+			return "", err
+		}
+
+		requestBody := map[string]string{"ParameterValue": value, "DataType": "xsd:string"}
+		requestBodyJson, err := json.Marshal(requestBody)
+		if err != nil {
+			return "", err
+		}
+		updateFlowConfigsURL := conf.ApiURL +
+			"/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$links/Configurations('" + key + "')"
+		log.Println(updateFlowConfigsURL)
+
+		request, err := http.NewRequest("PUT", updateFlowConfigsURL, bytes.NewBuffer(requestBodyJson))
+		if err != nil {
+			return "", err
+		}
+
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Accept", "application/json")
+		request.Header.Set("X-CSRF-Token", csrfToken)
+		for i := range cookies {
+			request.AddCookie(cookies[i])
+		}
+
+		httpClient := GetClient(conf)
+
+		response, err := httpClient.Do(request)
+		if err != nil {
+			return "", err
+		}
+		defer response.Body.Close()
+
+		//fmt.Println("response Status:", response.Status)
+		//fmt.Println("response Headers:", response.Header)
+		body, _ := ioutil.ReadAll(response.Body)
+		//	fmt.Println("response Body:", string(body))
+
+		statusOk := response.StatusCode >= 200 && response.StatusCode < 300
+		if !statusOk {
+			return "", fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
+		}
+		bodyStr = bodyStr + string(body) + "\n"
+
 	}
-	defer response.Body.Close()
+	return bodyStr, nil
+}
 
-	fmt.Println("response Status:", response.Status)
-	fmt.Println("response Headers:", response.Header)
-	body, _ := ioutil.ReadAll(response.Body)
-	fmt.Println("response Body:", string(body))
-	return nil
+func parseParam(param string) (string, string, error) {
+	//example: Key=key1,Value=value1
+	reg := regexp.MustCompile(`Key=.*,Value=`)
+	key := reg.FindString(param)
+	key = key[4 : len(key)-7]
 
+	reg = regexp.MustCompile(`,Value=.*`)
+	value := reg.FindString(param)
+	value = value[7:]
+
+	return key, value, nil
 }
