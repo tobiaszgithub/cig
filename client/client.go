@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 
 	"github.com/beeekind/go-authhttp"
 	"github.com/tobiaszgithub/cig/config"
@@ -289,7 +288,7 @@ func GetFlowConfigs(conf config.Configuration, flowName string) (*model.FlowConf
 	return &decodedRes, err
 }
 
-func UpdateFlowConfigs(conf config.Configuration, flowName string, configParams []string) (string, error) {
+func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) (string, error) {
 
 	csrfTokenURL := conf.ApiURL + "/"
 	tokenRequest, err := http.NewRequest("GET", csrfTokenURL, nil)
@@ -308,19 +307,19 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configParams 
 	cookies := tokenResponse.Cookies()
 
 	var bodyStr string
-	for _, param := range configParams {
-		key, value, err := parseParam(param)
+	for _, c := range configs {
+		//key, value, err := parseParam(param)
 		if err != nil {
 			return "", err
 		}
 
-		requestBody := map[string]string{"ParameterValue": value, "DataType": "xsd:string"}
+		requestBody := map[string]string{"ParameterValue": c.ParameterValue, "DataType": c.DataType}
 		requestBodyJson, err := json.Marshal(requestBody)
 		if err != nil {
 			return "", err
 		}
 		updateFlowConfigsURL := conf.ApiURL +
-			"/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$links/Configurations('" + key + "')"
+			"/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$links/Configurations('" + c.ParameterKey + "')"
 		log.Println(updateFlowConfigsURL)
 
 		request, err := http.NewRequest("PUT", updateFlowConfigsURL, bytes.NewBuffer(requestBodyJson))
@@ -356,17 +355,4 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configParams 
 
 	}
 	return bodyStr, nil
-}
-
-func parseParam(param string) (string, string, error) {
-	//example: Key=key1,Value=value1
-	reg := regexp.MustCompile(`Key=.*,Value=`)
-	key := reg.FindString(param)
-	key = key[4 : len(key)-7]
-
-	reg = regexp.MustCompile(`,Value=.*`)
-	value := reg.FindString(param)
-	value = value[7:]
-
-	return key, value, nil
 }

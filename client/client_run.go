@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/tobiaszgithub/cig/config"
+	"github.com/tobiaszgithub/cig/model"
 )
 
 func RunGetIntegrationPackages() {
@@ -152,13 +153,13 @@ func RunGetFlowConfigs(flowName string) {
 	resp.Print()
 }
 
-func RunUpdateFlowConfigs(flowName string, configParams []string) {
+func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrinter) {
 	conf, err := NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	resp, err := UpdateFlowConfigs(conf, flowName, configParams)
+	resp, err := UpdateFlowConfigs(conf, flowName, configs)
 	if err != nil {
 		log.Fatal("Error in UpdateFlowConfigs: ", err)
 	}
