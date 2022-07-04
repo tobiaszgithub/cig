@@ -159,7 +159,7 @@ func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrin
 		log.Fatal(err)
 	}
 
-	resp, err := UpdateFlowConfigs(conf, flowName, configs)
+	resp, err := UpdateFlowConfigsBatch(conf, flowName, configs)
 	if err != nil {
 		log.Fatal("Error in UpdateFlowConfigs: ", err)
 	}

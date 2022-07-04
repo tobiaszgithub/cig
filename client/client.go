@@ -356,3 +356,150 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []mod
 	}
 	return bodyStr, nil
 }
+
+func UpdateFlowConfigsBatch(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) (string, error) {
+
+	csrfTokenURL := conf.ApiURL + "/"
+	tokenRequest, err := http.NewRequest("GET", csrfTokenURL, nil)
+	if err != nil {
+		return "", err
+	}
+	tokenRequest.Header.Set("X-CSRF-Token", "Fetch")
+	tokenHttpClient := GetClient(conf)
+
+	tokenResponse, err := tokenHttpClient.Do(tokenRequest)
+	if err != nil {
+		return "", err
+	}
+	defer tokenResponse.Body.Close()
+	csrfToken := tokenResponse.Header.Get("X-CSRF-Token")
+	cookies := tokenResponse.Cookies()
+
+	var bodyStr string
+
+	batchURL := conf.ApiURL + "/$batch"
+	method := "POST"
+
+	begining :=
+		"--batch_request\r\n" +
+			"Content-Type: multipart/mixed; boundary=changeset_abc\r\n" +
+			"\r\n"
+
+	singleRequest :=
+		"--changeset_abc\r\n" +
+			"Content-Type: application/http\r\n" +
+			"Content-Transfer-Encoding:binary\r\n" +
+			"\r\n" +
+			"PUT IntegrationDesigntimeArtifacts(Id='PurchaseOrder',Version='active')/$links/Configurations('bodySize') HTTP/1.1\r\n" +
+			"Accept: application/json\r\n" +
+			"Content-Type: application/json\r\n" +
+			"\r\n" +
+			"{\r\n" +
+			"\"ParameterValue\": \"51\",\r\n" +
+			"\"DataType\": \"xsd:integer\"\r\n" +
+			"}\r\n" +
+			"\r\n"
+
+	end :=
+		"--changeset_abc--\r\n" +
+			"\r\n" +
+			"--batch_request--"
+
+	payload :=
+		begining +
+			// "--batch_request\r\n" +
+			// 	"Content-Type: multipart/mixed; boundary=changeset_abc\r\n" +
+			// 	"\r\n" +
+			singleRequest +
+			// "--changeset_abc\r\n" +
+			// "Content-Type: application/http\r\n" +
+			// "Content-Transfer-Encoding:binary\r\n" +
+			// "\r\n" +
+			// "PUT IntegrationDesigntimeArtifacts(Id='PurchaseOrder',Version='active')/$links/Configurations('bodySize') HTTP/1.1\r\n" +
+			// "Accept: application/json\r\n" +
+			// "Content-Type: application/json\r\n" +
+			// "\r\n" +
+			// "{\r\n" +
+			// "\"ParameterValue\": \"51\",\r\n" +
+			// "\"DataType\": \"xsd:integer\"\r\n" +
+			// "}\r\n" +
+			// "\r\n" +
+			end
+		// "--changeset_abc--\r\n" +
+		// "\r\n" +
+		// "--batch_request--"
+	print(payload)
+	b2 := bytes.NewBufferString(payload)
+	len2 := b2.Len()
+	println(len2)
+	println()
+
+	// if b, err := io.ReadAll(payload); err == nil {
+	// 	println()
+	// 	println(string(b))
+	// }
+	// b := bytes.NewBufferString(payload)
+	// len := b.Len()
+	// println(len)
+	var batch string
+	for _, c := range configs {
+
+		updateFlowConfigsURL := //conf.ApiURL +
+			"IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$links/Configurations('" + c.ParameterKey + "')"
+		log.Println(updateFlowConfigsURL)
+
+		singleRequest :=
+			"--changeset_abc\r\n" +
+				"Content-Type: application/http\r\n" +
+				"Content-Transfer-Encoding:binary\r\n" +
+				"\r\n" +
+				"PUT " +
+
+				//"IntegrationDesigntimeArtifacts(Id='PurchaseOrder',Version='active')/$links/Configurations('bodySize')" +
+				updateFlowConfigsURL +
+				" HTTP/1.1\r\n" +
+				"Accept: application/json\r\n" +
+				"Content-Type: application/json\r\n" +
+				"\r\n" +
+				"{\r\n" +
+				"\"ParameterValue\": \"" + c.ParameterValue + "\",\r\n" +
+				"\"DataType\": \"" + c.DataType + "\"\r\n" +
+				"}\r\n" +
+				"\r\n"
+
+		batch = batch + singleRequest
+
+	}
+	payload = begining + batch + end
+	println(payload)
+	request, err := http.NewRequest(method, batchURL, bytes.NewBufferString(payload))
+	if err != nil {
+		return "", err
+	}
+
+	request.Header.Set("Content-Type", "multipart/mixed; boundary=batch_request")
+	request.Header.Set("X-CSRF-Token", csrfToken)
+	//request.Header.Set("Content-Length", "431")
+	for i := range cookies {
+		request.AddCookie(cookies[i])
+	}
+
+	httpClient := GetClient(conf)
+
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+
+	body, _ := ioutil.ReadAll(response.Body)
+	//	fmt.Println("response Body:", string(body))
+
+	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
+	if !statusOk {
+		return "", fmt.Errorf("response Status: %s\n, response body:\n %s", response.Status, string(body))
+	}
+	bodyStr = bodyStr + string(body) + "\n"
+
+	return bodyStr, nil
+}
