@@ -290,21 +290,10 @@ func GetFlowConfigs(conf config.Configuration, flowName string) (*model.FlowConf
 
 func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) (string, error) {
 
-	csrfTokenURL := conf.ApiURL + "/"
-	tokenRequest, err := http.NewRequest("GET", csrfTokenURL, nil)
+	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {
 		return "", err
 	}
-	tokenRequest.Header.Set("X-CSRF-Token", "Fetch")
-	tokenHttpClient := GetClient(conf)
-
-	tokenResponse, err := tokenHttpClient.Do(tokenRequest)
-	if err != nil {
-		return "", err
-	}
-	defer tokenResponse.Body.Close()
-	csrfToken := tokenResponse.Header.Get("X-CSRF-Token")
-	cookies := tokenResponse.Cookies()
 
 	var bodyStr string
 	for _, c := range configs {
@@ -342,8 +331,6 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []mod
 		}
 		defer response.Body.Close()
 
-		//fmt.Println("response Status:", response.Status)
-		//fmt.Println("response Headers:", response.Header)
 		body, _ := ioutil.ReadAll(response.Body)
 		//	fmt.Println("response Body:", string(body))
 
@@ -359,21 +346,10 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []mod
 
 func UpdateFlowConfigsBatch(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) (string, error) {
 
-	csrfTokenURL := conf.ApiURL + "/"
-	tokenRequest, err := http.NewRequest("GET", csrfTokenURL, nil)
+	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {
 		return "", err
 	}
-	tokenRequest.Header.Set("X-CSRF-Token", "Fetch")
-	tokenHttpClient := GetClient(conf)
-
-	tokenResponse, err := tokenHttpClient.Do(tokenRequest)
-	if err != nil {
-		return "", err
-	}
-	defer tokenResponse.Body.Close()
-	csrfToken := tokenResponse.Header.Get("X-CSRF-Token")
-	cookies := tokenResponse.Cookies()
 
 	var bodyStr string
 
@@ -385,62 +361,12 @@ func UpdateFlowConfigsBatch(conf config.Configuration, flowName string, configs 
 			"Content-Type: multipart/mixed; boundary=changeset_abc\r\n" +
 			"\r\n"
 
-	singleRequest :=
-		"--changeset_abc\r\n" +
-			"Content-Type: application/http\r\n" +
-			"Content-Transfer-Encoding:binary\r\n" +
-			"\r\n" +
-			"PUT IntegrationDesigntimeArtifacts(Id='PurchaseOrder',Version='active')/$links/Configurations('bodySize') HTTP/1.1\r\n" +
-			"Accept: application/json\r\n" +
-			"Content-Type: application/json\r\n" +
-			"\r\n" +
-			"{\r\n" +
-			"\"ParameterValue\": \"51\",\r\n" +
-			"\"DataType\": \"xsd:integer\"\r\n" +
-			"}\r\n" +
-			"\r\n"
-
 	end :=
 		"--changeset_abc--\r\n" +
 			"\r\n" +
 			"--batch_request--"
 
-	payload :=
-		begining +
-			// "--batch_request\r\n" +
-			// 	"Content-Type: multipart/mixed; boundary=changeset_abc\r\n" +
-			// 	"\r\n" +
-			singleRequest +
-			// "--changeset_abc\r\n" +
-			// "Content-Type: application/http\r\n" +
-			// "Content-Transfer-Encoding:binary\r\n" +
-			// "\r\n" +
-			// "PUT IntegrationDesigntimeArtifacts(Id='PurchaseOrder',Version='active')/$links/Configurations('bodySize') HTTP/1.1\r\n" +
-			// "Accept: application/json\r\n" +
-			// "Content-Type: application/json\r\n" +
-			// "\r\n" +
-			// "{\r\n" +
-			// "\"ParameterValue\": \"51\",\r\n" +
-			// "\"DataType\": \"xsd:integer\"\r\n" +
-			// "}\r\n" +
-			// "\r\n" +
-			end
-		// "--changeset_abc--\r\n" +
-		// "\r\n" +
-		// "--batch_request--"
-	print(payload)
-	b2 := bytes.NewBufferString(payload)
-	len2 := b2.Len()
-	println(len2)
-	println()
-
-	// if b, err := io.ReadAll(payload); err == nil {
-	// 	println()
-	// 	println(string(b))
-	// }
-	// b := bytes.NewBufferString(payload)
-	// len := b.Len()
-	// println(len)
+	var payload string
 	var batch string
 	for _, c := range configs {
 
@@ -501,5 +427,71 @@ func UpdateFlowConfigsBatch(conf config.Configuration, flowName string, configs 
 	}
 	bodyStr = bodyStr + string(body) + "\n"
 
+	return bodyStr, nil
+}
+
+func getCsrfTokenAndCookies(conf config.Configuration) (string, []*http.Cookie, error) {
+	csrfTokenURL := conf.ApiURL + "/"
+	tokenRequest, err := http.NewRequest("GET", csrfTokenURL, nil)
+	if err != nil {
+		return "", nil, err
+	}
+	tokenRequest.Header.Set("X-CSRF-Token", "Fetch")
+	tokenHttpClient := GetClient(conf)
+
+	tokenResponse, err := tokenHttpClient.Do(tokenRequest)
+	if err != nil {
+		return "", nil, err
+	}
+	defer tokenResponse.Body.Close()
+	csrfToken := tokenResponse.Header.Get("X-CSRF-Token")
+	cookies := tokenResponse.Cookies()
+
+	return csrfToken, cookies, nil
+}
+
+func CreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) (string, error) {
+	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
+	if err != nil {
+		return "", err
+	}
+
+	requestBody := map[string]string{"Name": name,
+		"Id":        id,
+		"PackageId": packageid}
+	requestBodyJson, err := json.Marshal(requestBody)
+	if err != nil {
+		return "", err
+	}
+
+	createFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts"
+	log.Println(createFlowURL)
+
+	request, err := http.NewRequest("POST", createFlowURL, bytes.NewBuffer(requestBodyJson))
+	if err != nil {
+		return "", err
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json")
+	request.Header.Set("X-CSRF-Token", csrfToken)
+	for i := range cookies {
+		request.AddCookie(cookies[i])
+	}
+
+	httpClient := GetClient(conf)
+
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+
+	body, _ := ioutil.ReadAll(response.Body)
+	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
+	if !statusOk {
+		return "", fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
+	}
+	bodyStr := string(body) + "\n"
 	return bodyStr, nil
 }

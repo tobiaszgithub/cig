@@ -168,3 +168,18 @@ func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrin
 	//resp.Print()
 
 }
+
+func RunCreateFlow(name string, id string, packageid string, fileName string) {
+	conf, err := NewConfiguration()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := CreateFlow(conf, name, id, packageid, fileName)
+	if err != nil {
+		log.Fatal("Error in UpdateFlowConfigs:\n", err)
+	}
+
+	fmt.Println(resp)
+
+}
