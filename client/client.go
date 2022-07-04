@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -456,9 +457,37 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 		return "", err
 	}
 
-	requestBody := map[string]string{"Name": name,
-		"Id":        id,
-		"PackageId": packageid}
+	var encodedContent string
+
+	if fileName != "" {
+		contentData, err := ioutil.ReadFile(fileName)
+		if err != nil {
+			return "", err
+		}
+
+		encodedContent = base64.StdEncoding.EncodeToString(contentData)
+		// println()
+		// println(encodedContent)
+		// println()
+	}
+
+	var requestBody map[string]string
+
+	if encodedContent != "" {
+		requestBody = map[string]string{
+			"Name":            name,
+			"Id":              id,
+			"PackageId":       packageid,
+			"ArtifactContent": encodedContent,
+		}
+	} else {
+		requestBody = map[string]string{
+			"Name":      name,
+			"Id":        id,
+			"PackageId": packageid,
+		}
+	}
+
 	requestBodyJson, err := json.Marshal(requestBody)
 	if err != nil {
 		return "", err
