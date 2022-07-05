@@ -12,13 +12,13 @@ import (
 )
 
 // createCmd represents the create command
-var createFlowCmd = &cobra.Command{
+var flowCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create or upload an integration flow of designtime",
 	Long: `You can use the following subcommand to create or upload
 	an integration flow of designtime`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create called")
+		fmt.Println("flowCreate called")
 		name, _ := cmd.Flags().GetString("name")
 		id, _ := cmd.Flags().GetString("id")
 		packageid, _ := cmd.Flags().GetString("package-id")
@@ -29,11 +29,11 @@ var createFlowCmd = &cobra.Command{
 }
 
 func init() {
-	flowCmd.AddCommand(createFlowCmd)
-	createFlowCmd.Flags().StringP("name", "n", "", "Integration Flow name")
-	createFlowCmd.Flags().StringP("id", "i", "", "Integration Flow id")
-	createFlowCmd.Flags().StringP("package-id", "p", "", "Integration Flow package id")
-	createFlowCmd.Flags().StringP("content-file-name", "f", "", "Integration Flow artifact content file (.zip)")
+	flowCmd.AddCommand(flowCreateCmd)
+	flowCreateCmd.Flags().StringP("name", "n", "", "Integration Flow name")
+	flowCreateCmd.Flags().StringP("id", "i", "", "Integration Flow id")
+	flowCreateCmd.Flags().StringP("package-id", "p", "", "Integration Flow package id")
+	flowCreateCmd.Flags().StringP("content-file-name", "f", "", "Integration Flow artifact content file (.zip)")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

@@ -177,7 +177,22 @@ func RunCreateFlow(name string, id string, packageid string, fileName string) {
 
 	resp, err := CreateFlow(conf, name, id, packageid, fileName)
 	if err != nil {
-		log.Fatal("Error in UpdateFlowConfigs:\n", err)
+		log.Fatal("Error in CreateFlow:\n", err)
+	}
+
+	fmt.Println(resp)
+
+}
+
+func RunUpdateFlow(name string, id string, version string, fileName string) {
+	conf, err := NewConfiguration()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := UpdateFlow(conf, name, id, version, fileName)
+	if err != nil {
+		log.Fatal("Error in UpdateFlow:\n", err)
 	}
 
 	fmt.Println(resp)
