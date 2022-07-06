@@ -56,7 +56,6 @@ func (r *IPResponse) Print() {
 		responsePrinter.D.Results = append(responsePrinter.D.Results, ipprinter)
 
 	}
-
 	tableprinter.Print(os.Stdout, responsePrinter.D.Results)
 }
 

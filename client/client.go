@@ -47,6 +47,7 @@ func GetClient(conf config.Configuration) *http.Client {
 
 func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error) {
 	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages"
+	log.Println(integrationPackagesURL)
 
 	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
 	if err != nil {
@@ -76,6 +77,7 @@ func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error
 
 func InspectIntegrationPackage(conf config.Configuration, packageId string) (*model.IPByIdResponse, error) {
 	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageId + "')"
+	log.Println(integrationPackagesURL)
 
 	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
 	if err != nil {
@@ -104,6 +106,7 @@ func InspectIntegrationPackage(conf config.Configuration, packageId string) (*mo
 
 func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string) (*model.FlowsOfIPResponse, error) {
 	flowsOfIntegrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')/IntegrationDesigntimeArtifacts"
+	log.Println(flowsOfIntegrationPackagesURL)
 
 	request, err := http.NewRequest("GET", flowsOfIntegrationPackagesURL, nil)
 	if err != nil {
