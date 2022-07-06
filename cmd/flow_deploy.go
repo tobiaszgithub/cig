@@ -13,7 +13,7 @@ import (
 
 // flowDeployCmd represents the flowDeploy command
 var flowDeployCmd = &cobra.Command{
-	Use:   "deploy [flow-id]",
+	Use:   "deploy flow-id",
 	Short: "Deploy an integration flow",
 	Long:  `You can use the following request to deploy an integration flow of designtime.`,
 	Run: func(cmd *cobra.Command, args []string) {

@@ -11,8 +11,8 @@ import (
 // flowCmd represents the flow command
 var flowCmd = &cobra.Command{
 	Use:   "flow",
-	Short: "Subcommand related to the processing of an integration flow",
-	Long:  `Subcommand related to the processing of an integration flow.`,
+	Short: "Command related to the processing of an integration flow",
+	Long:  `Command related to the processing of an integration flow.`,
 	// Run: func(cmd *cobra.Command, args []string) {
 	// 	fmt.Println("flow called")
 	// },

@@ -11,7 +11,7 @@ import (
 
 // flowDownloadCmd represents the flowDownload command
 var flowDownloadCmd = &cobra.Command{
-	Use:   "download [flow id]",
+	Use:   "download flow-id",
 	Short: "Download an integration flow as zip file",
 	Long: `You can use the following subcommand to download an integration flow of designtime as zip file.
 Integration flows of configure-only packages cannot be downloaded.`,

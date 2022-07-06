@@ -11,7 +11,7 @@ import (
 
 // flowConfigurationsCmd represents the flowConfigurations command
 var flowConfigurationsCmd = &cobra.Command{
-	Use:     "describe-configs [flow id]",
+	Use:     "describe-configs flow-id",
 	Aliases: []string{"configs", "configurations"},
 	Short:   "Get configurations of an integration flow by Id and version",
 	Long: `You can use the following request to get the configuration

@@ -17,7 +17,7 @@ import (
 
 // updateConfigsCmd represents the updateConfigs command
 var updateConfigsCmd = &cobra.Command{
-	Use:   "update-configs [flow id]",
+	Use:   "update-configs flow-id",
 	Short: "Update configuration parameters of an integration flow",
 	Long: `You can use the following command to update the value
 for a configuration parameters of a designtime integration flow.`,

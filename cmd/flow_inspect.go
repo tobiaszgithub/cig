@@ -5,24 +5,16 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
 )
 
 // flowInspectCmd represents the flowInspect command
 var flowInspectCmd = &cobra.Command{
-	Use:   "inspect",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "inspect flow-id",
+	Short: "Get integration flow by id and version",
+	Long:  `You can use the following subcommand to get an integration flow of designtime by Id and version.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("flowInspect called")
 		client.RunInspectFlow(args[0])
 	},
 }

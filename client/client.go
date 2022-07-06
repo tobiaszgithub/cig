@@ -182,8 +182,8 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 	return nil
 }
 
-func InspectFlow(conf config.Configuration, fileName string) (*model.FlowByIdResponse, error) {
-	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + fileName + "',Version='active')"
+func InspectFlow(conf config.Configuration, flowId string) (*model.FlowByIdResponse, error) {
+	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')"
 	log.Println(flowURL)
 	request, err := http.NewRequest("GET", flowURL, nil)
 	if err != nil {

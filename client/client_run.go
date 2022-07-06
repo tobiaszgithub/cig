@@ -70,13 +70,13 @@ func RunDownloadIntegrationPackage(packageName string) {
 
 }
 
-func RunInspectFlow(flowName string) {
+func RunInspectFlow(flowId string) {
 	conf, err := NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	resp, err := InspectFlow(conf, flowName)
+	resp, err := InspectFlow(conf, flowId)
 	if err != nil {
 		log.Fatal("Error in InspectFlow: ", err)
 	}
