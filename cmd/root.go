@@ -13,11 +13,11 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "cig",
-	Short: "Coud Integration with Go",
-	Long: `CLI for Cloud Integration:
-
-	Using thie tool it is possible to 
-	Manage and query integration artifacts of design time and runtime.`,
+	Short: "Coud Integration command-line interface (CLI) with Go",
+	Long: `
+CLI for Cloud Integration:
+Using thie tool it is possible to 
+Manage and query integration artifacts of design time and runtime.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -41,5 +41,5 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

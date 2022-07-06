@@ -74,8 +74,8 @@ func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error
 
 }
 
-func InspectIntegrationPackage(conf config.Configuration, packageName string) (*model.IPByIdResponse, error) {
-	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')"
+func InspectIntegrationPackage(conf config.Configuration, packageId string) (*model.IPByIdResponse, error) {
+	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageId + "')"
 
 	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
 	if err != nil {

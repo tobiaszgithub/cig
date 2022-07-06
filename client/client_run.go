@@ -29,13 +29,13 @@ func RunGetIntegrationPackages() {
 
 }
 
-func RunInspectIntegrationPackage(packageName string) {
+func RunInspectIntegrationPackage(packageId string) {
 	conf, err := NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	resp, err := InspectIntegrationPackage(conf, packageName)
+	resp, err := InspectIntegrationPackage(conf, packageId)
 	if err != nil {
 		log.Fatal("Error in InspectIntegrationPackage: ", err)
 	}
