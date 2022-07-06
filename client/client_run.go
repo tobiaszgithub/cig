@@ -83,13 +83,13 @@ func RunInspectFlow(flowName string) {
 	resp.Print()
 }
 
-func RunDownloadFlow(flowName string) {
+func RunDownloadFlow(flowId string) {
 	conf, err := NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = DownloadFlow(conf, flowName)
+	err = DownloadFlow(conf, flowId)
 	if err != nil {
 		log.Fatal("Error in DownloadFlow: ", err)
 	}

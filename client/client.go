@@ -210,8 +210,8 @@ func InspectFlow(conf config.Configuration, fileName string) (*model.FlowByIdRes
 	return &decodedRes, err
 }
 
-func DownloadFlow(conf config.Configuration, flowName string) error {
-	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$value"
+func DownloadFlow(conf config.Configuration, flowId string) error {
+	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')/$value"
 
 	request, err := http.NewRequest("GET", flowURL, nil)
 	if err != nil {
@@ -242,7 +242,7 @@ func DownloadFlow(conf config.Configuration, flowName string) error {
 		return err
 	}
 
-	flowOutPath := filepath.Join(cwd, flowName+".zip")
+	flowOutPath := filepath.Join(cwd, flowId+".zip")
 	//log.Println(packageOutPath)
 
 	out, err := os.Create(flowOutPath)

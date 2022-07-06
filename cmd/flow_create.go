@@ -14,7 +14,7 @@ import (
 // createCmd represents the create command
 var flowCreateCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Create or upload an integration flow of designtime",
+	Short: "Create or upload an integration flow",
 	Long: `You can use the following subcommand to create or upload
 	an integration flow of designtime`,
 	Run: func(cmd *cobra.Command, args []string) {
