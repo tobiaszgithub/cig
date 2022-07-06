@@ -5,6 +5,8 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
 )
@@ -16,6 +18,9 @@ var flowDownloadCmd = &cobra.Command{
 	Long: `You can use the following subcommand to download an integration flow of designtime as zip file.
 Integration flows of configure-only packages cannot be downloaded.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			log.Fatal("Please provide flow-id")
+		}
 		client.RunDownloadFlow(args[0])
 	},
 }

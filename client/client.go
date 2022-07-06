@@ -124,6 +124,12 @@ func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string)
 
 	defer response.Body.Close()
 
+	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
+	if !statusOk {
+		body, _ := ioutil.ReadAll(response.Body)
+		return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
+	}
+
 	var decodedRes model.FlowsOfIPResponse
 
 	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {

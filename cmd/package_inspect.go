@@ -5,6 +5,8 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
 )
@@ -16,7 +18,9 @@ var packageInspectCmd = &cobra.Command{
 	Long:  `You can use the following subcommand to get an integration packages of designtime by Id.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Println("packageInspect called")
-
+		if len(args) == 0 {
+			log.Fatal("Please provide package-id")
+		}
 		client.RunInspectIntegrationPackage(args[0])
 	},
 }

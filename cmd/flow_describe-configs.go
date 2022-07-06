@@ -5,6 +5,8 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
 )
@@ -17,6 +19,9 @@ var flowConfigurationsCmd = &cobra.Command{
 	Long: `You can use the following request to get the configuration
 parameters (key/value pairs) of a designtime integration artifact by Id and version.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			log.Fatal("Please provide flow-id")
+		}
 		client.RunGetFlowConfigs(args[0])
 	},
 }

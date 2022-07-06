@@ -98,6 +98,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	updateConfigsCmd.Flags().StringArrayP("parameter", "p", []string{}, "Flow Configuration parameter, format: Key=key1,Value=value1")
-	updateConfigsCmd.Flags().StringP("input-file", "f", "", "File with parameters, file has format like output from describe-configs")
+	updateConfigsCmd.Flags().StringP("input-file", "f", "", "File with parameters, utf-8 file has format like output from describe-configs")
 	//	updateConfigsCmd.Flags().StringSliceP("parameters2", "r", []string{}, "Help message for toggle")
 }

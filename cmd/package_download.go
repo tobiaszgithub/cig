@@ -5,6 +5,8 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
 )
@@ -17,7 +19,9 @@ var packageDownloadCmd = &cobra.Command{
 Download fails if the package contains one or more artifacts in draft state.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Println("packageDownload called")
-
+		if len(args) == 0 {
+			log.Fatal("Please provide package-id")
+		}
 		client.RunDownloadIntegrationPackage(args[0])
 
 	},

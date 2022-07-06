@@ -5,8 +5,6 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
 )
@@ -17,7 +15,6 @@ var flowUpdateCmd = &cobra.Command{
 	Short: "Update an integration flow",
 	Long:  `You can use the following request to update an integration flow from designtime`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("flowUpdate called")
 		name, _ := cmd.Flags().GetString("name")
 		id, _ := cmd.Flags().GetString("id")
 		fileName, _ := cmd.Flags().GetString("content-file-name")

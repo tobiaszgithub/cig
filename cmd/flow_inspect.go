@@ -5,6 +5,8 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
 )
@@ -15,6 +17,9 @@ var flowInspectCmd = &cobra.Command{
 	Short: "Get integration flow by id and version",
 	Long:  `You can use the following subcommand to get an integration flow of designtime by Id and version.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			log.Fatal("Please provide flow-id")
+		}
 		client.RunInspectFlow(args[0])
 	},
 }

@@ -5,7 +5,7 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
@@ -17,7 +17,9 @@ var flowDeployCmd = &cobra.Command{
 	Short: "Deploy an integration flow",
 	Long:  `You can use the following request to deploy an integration flow of designtime.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("flowDeploy called")
+		if len(args) == 0 {
+			log.Fatal("Please provide flow-id")
+		}
 		version, _ := cmd.Flags().GetString("version")
 		client.RunDeployFlow(args[0], version)
 	},
