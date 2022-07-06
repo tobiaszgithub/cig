@@ -198,3 +198,17 @@ func RunUpdateFlow(name string, id string, version string, fileName string) {
 	fmt.Println(resp)
 
 }
+
+func RunDeployFlow(id string, version string) {
+	conf, err := NewConfiguration()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := DeployFlow(conf, id, version)
+	if err != nil {
+		log.Fatal("Error in UpdateFlow:\n", err)
+	}
+
+	fmt.Println(resp)
+}
