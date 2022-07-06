@@ -18,7 +18,7 @@ var flowDeployCmd = &cobra.Command{
 	Long:  `You can use the following request to deploy an integration flow of designtime.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			log.Fatal("Please provide flow-id")
+			log.Fatal("Required parameter flow-id not set")
 		}
 		version, _ := cmd.Flags().GetString("version")
 		client.RunDeployFlow(args[0], version)

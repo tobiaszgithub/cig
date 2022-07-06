@@ -19,7 +19,7 @@ var flowDownloadCmd = &cobra.Command{
 Integration flows of configure-only packages cannot be downloaded.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			log.Fatal("Please provide flow-id")
+			log.Fatal("Required parameter flow-id not set")
 		}
 		client.RunDownloadFlow(args[0])
 	},

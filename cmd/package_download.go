@@ -20,7 +20,7 @@ Download fails if the package contains one or more artifacts in draft state.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Println("packageDownload called")
 		if len(args) == 0 {
-			log.Fatal("Please provide package-id")
+			log.Fatal("Required parameter package-id not set")
 		}
 		client.RunDownloadIntegrationPackage(args[0])
 

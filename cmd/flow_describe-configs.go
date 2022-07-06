@@ -20,7 +20,7 @@ var flowConfigurationsCmd = &cobra.Command{
 parameters (key/value pairs) of a designtime integration artifact by Id and version.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			log.Fatal("Please provide flow-id")
+			log.Fatal("Required parameter flow-id not set")
 		}
 		client.RunGetFlowConfigs(args[0])
 	},

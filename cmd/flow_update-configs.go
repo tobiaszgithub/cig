@@ -22,7 +22,9 @@ var updateConfigsCmd = &cobra.Command{
 	Long: `You can use the following command to update the value
 for a configuration parameters of a designtime integration flow.`,
 	Run: func(cmd *cobra.Command, args []string) {
-
+		if len(args) == 0 {
+			log.Fatal("Required parameter flow-id not set")
+		}
 		var allConfigParams []model.FlowConfigurationPrinter
 
 		parameters, _ := cmd.Flags().GetStringArray("parameter")

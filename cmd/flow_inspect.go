@@ -18,7 +18,7 @@ var flowInspectCmd = &cobra.Command{
 	Long:  `You can use the following subcommand to get an integration flow of designtime by Id and version.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			log.Fatal("Please provide flow-id")
+			log.Fatal("Required parameter flow-id not set")
 		}
 		client.RunInspectFlow(args[0])
 	},

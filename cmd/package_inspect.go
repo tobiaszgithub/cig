@@ -19,7 +19,7 @@ var packageInspectCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Println("packageInspect called")
 		if len(args) == 0 {
-			log.Fatal("Please provide package-id")
+			log.Fatal("Required parameter package-id not set")
 		}
 		client.RunInspectIntegrationPackage(args[0])
 	},
