@@ -11,9 +11,10 @@ import (
 
 // packageLsCmd represents the packageLs command
 var packageLsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "Get all integration packages as list",
-	Long:  `You can use the following subcommand to get all integration packages of designtime.`,
+	Use:   "ls [package-id]",
+	Short: "Get all integration packages as list or get all integration flow of the package",
+	Long: `You can use the following subcommand to get all integration packages of designtime.
+Optionaly you can use this subcommand to get all integration flows of the specified package-id`,
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Println("packageLs called")
 		if len(args) > 0 {
