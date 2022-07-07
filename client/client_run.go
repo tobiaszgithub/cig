@@ -1,12 +1,8 @@
 package client
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 
 	"github.com/tobiaszgithub/cig/config"
 	"github.com/tobiaszgithub/cig/model"
@@ -14,7 +10,7 @@ import (
 
 func RunGetIntegrationPackages() {
 
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,7 +26,7 @@ func RunGetIntegrationPackages() {
 }
 
 func RunInspectIntegrationPackage(packageId string) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,7 +40,7 @@ func RunInspectIntegrationPackage(packageId string) {
 }
 
 func RunGetFlowsOfIntegrationPackage(packageName string) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +54,7 @@ func RunGetFlowsOfIntegrationPackage(packageName string) {
 }
 
 func RunDownloadIntegrationPackage(packageName string) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,7 +67,7 @@ func RunDownloadIntegrationPackage(packageName string) {
 }
 
 func RunInspectFlow(flowId string) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,7 +80,7 @@ func RunInspectFlow(flowId string) {
 }
 
 func RunDownloadFlow(flowId string) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -96,53 +92,8 @@ func RunDownloadFlow(flowId string) {
 
 }
 
-func NewConfiguration() (config.Configuration, error) {
-	conf := config.Configuration{}
-
-	// path, _ := os.Getwd()
-	// println("os.Getwd(): ", path)
-
-	configFile, err := os.Open("./config.json")
-	if err != nil {
-		homePath, _ := os.UserHomeDir()
-		configFilePath := filepath.Join(homePath, ".cig", "config.json")
-		log.Println("Config file path: ", configFilePath)
-		configFile, err = os.Open(configFilePath)
-		if err != nil {
-			err = fmt.Errorf("error opening config.json: %w", err)
-			return conf, err
-		}
-
-	}
-
-	defer configFile.Close()
-
-	confAll := config.ConfigurationFile{}
-
-	err = json.NewDecoder(configFile).Decode(&confAll)
-	if err != nil {
-		return conf, err
-	}
-	for _, v := range confAll.Tenants {
-		if confAll.ActiveTenantKey == v.Key {
-			conf.Key = v.Key
-			conf.ApiURL = v.ApiURL
-			conf.Authorization = v.Authorization
-			break
-		}
-	}
-
-	if conf.ApiURL == "" {
-
-		err = errors.New("provide configuration file with tenant ApiURL")
-		return conf, err
-	}
-
-	return conf, err
-}
-
 func RunGetFlowConfigs(flowName string) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -154,7 +105,7 @@ func RunGetFlowConfigs(flowName string) {
 }
 
 func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrinter) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -170,7 +121,7 @@ func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrin
 }
 
 func RunCreateFlow(name string, id string, packageid string, fileName string) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -185,7 +136,7 @@ func RunCreateFlow(name string, id string, packageid string, fileName string) {
 }
 
 func RunUpdateFlow(name string, id string, version string, fileName string) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -200,7 +151,7 @@ func RunUpdateFlow(name string, id string, version string, fileName string) {
 }
 
 func RunDeployFlow(id string, version string) {
-	conf, err := NewConfiguration()
+	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
