@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
@@ -22,7 +23,20 @@ parameters (key/value pairs) of a designtime integration artifact by Id and vers
 		if len(args) == 0 {
 			log.Fatal("Required parameter flow-id not set")
 		}
-		client.RunGetFlowConfigs(args[0])
+		fileName, _ := cmd.Flags().GetString("output-file")
+		var outputFile *os.File
+		var err error
+		if fileName != "" {
+			log.Println("File name: ", fileName)
+			outputFile, err = os.Create(fileName)
+			if err != nil {
+				log.Fatal("Error creating file: ", err)
+			}
+			defer outputFile.Close()
+
+		}
+
+		client.RunGetFlowConfigs(args[0], outputFile)
 	},
 }
 
@@ -38,4 +52,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// flowConfigurationsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	flowConfigurationsCmd.Flags().StringP("output-file", "o", "", "The output file with configuration parameters that will be created, utf-8 file has format like output from describe-configs")
 }

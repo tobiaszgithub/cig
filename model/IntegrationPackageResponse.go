@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/lensesio/tableprinter"
@@ -56,6 +57,7 @@ func (r *IPResponse) Print() {
 		responsePrinter.D.Results = append(responsePrinter.D.Results, ipprinter)
 
 	}
+
 	tableprinter.Print(os.Stdout, responsePrinter.D.Results)
 }
 
@@ -199,7 +201,7 @@ type FlowConfigurationsPrinter struct {
 	} `json:"d"`
 }
 
-func (r *FlowConfigurations) Print() {
+func (r *FlowConfigurations) Print(w io.Writer) {
 	var responsePrinter FlowConfigurationsPrinter
 
 	for _, r := range r.D.Results {
@@ -216,5 +218,6 @@ func (r *FlowConfigurations) Print() {
 	if err != nil {
 		panic("Could not Marshal IPByIdResponse")
 	}
-	fmt.Println(string(b))
+	fmt.Fprint(w, string(b))
+
 }

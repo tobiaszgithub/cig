@@ -2,7 +2,9 @@ package client
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"os"
 
 	"github.com/tobiaszgithub/cig/config"
 	"github.com/tobiaszgithub/cig/model"
@@ -92,7 +94,7 @@ func RunDownloadFlow(flowId string) {
 
 }
 
-func RunGetFlowConfigs(flowName string) {
+func RunGetFlowConfigs(flowName string, outputFile io.WriteSeeker) {
 	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
@@ -101,7 +103,12 @@ func RunGetFlowConfigs(flowName string) {
 	if err != nil {
 		log.Fatal("Error in GetFlowConfigs: ", err)
 	}
-	resp.Print()
+
+	resp.Print(os.Stdout)
+
+	if outputFile != nil {
+		resp.Print(outputFile)
+	}
 }
 
 func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrinter) {
