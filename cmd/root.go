@@ -16,8 +16,8 @@ var rootCmd = &cobra.Command{
 	Short: "Coud Integration command-line interface (CLI) with Go",
 	Long: `
 CLI for Cloud Integration:
-Using thie tool it is possible to 
-Manage and query integration artifacts of design time and runtime.`,
+Using this tool it is possible to manage and query integration artifacts
+of design time and runtime.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
