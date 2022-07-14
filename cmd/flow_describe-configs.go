@@ -28,7 +28,7 @@ parameters (key/value pairs) of a designtime integration artifact by Id and vers
 		var err error
 		if fileName != "" {
 			log.Println("File name: ", fileName)
-			outputFile, err = os.Create(fileName)
+			outputFile, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
 			if err != nil {
 				log.Fatal("Error creating file: ", err)
 			}

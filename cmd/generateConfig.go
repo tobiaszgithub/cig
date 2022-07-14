@@ -5,9 +5,10 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // generateConfigCmd represents the generateConfig command
@@ -17,8 +18,13 @@ var generateConfigCmd = &cobra.Command{
 	Long: `Generate configuration file. This file is nessesary for the operation
 of the cig tool. Configuration file should be placed in working directory or userhome/.cig/ directory`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("generateConfig called")
-
+		//fmt.Println("generateConfig called")
+		outputFileName, _ := cmd.Flags().GetString("output-file")
+		log.Println("File: ", outputFileName, " will be generated")
+		err := config.GenerateEmptyConfigFile(outputFileName)
+		if err != nil {
+			log.Fatal("Error during generating Configuration file: ", err)
+		}
 	},
 }
 
@@ -34,4 +40,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// generateConfigCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	generateConfigCmd.Flags().StringP("output-file", "o", "config.json", "The output file with empty configuration parameters that will be created")
+	//generateConfigCmd.MarkFlagRequired("output-file")
 }
