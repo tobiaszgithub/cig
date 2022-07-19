@@ -642,3 +642,7 @@ func DeployFlow(conf config.Configuration, id string, version string) (string, e
 	bodyStr := "Task ID:\n" + string(body) + "\n"
 	return bodyStr, nil
 }
+
+func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string) {
+
+}

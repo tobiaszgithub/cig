@@ -6,18 +6,29 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/tobiaszgithub/cig/client"
 )
 
 // flowCopyCmd represents the flowCopy command
 var flowCopyCmd = &cobra.Command{
-	Use:   "copy",
+	Use:   "copy [source-flow-id] [destination-flow-id]",
 	Short: "Copy an integration flow",
 	Long: `You can use the following subcommand to copy
 an integration flow of designtime`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("flowCopy called")
+		if len(args) == 0 {
+			log.Fatal("Required parameter source-flow-id not set")
+		}
+		if len(args) == 1 {
+			log.Fatal("Required parameter destination-flow-id not set")
+		}
+
+		client.RunCopyFlow(args[0], args[1])
+
 	},
 }
 

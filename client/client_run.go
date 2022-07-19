@@ -170,3 +170,12 @@ func RunDeployFlow(id string, version string) {
 
 	fmt.Println(resp)
 }
+
+func RunCopyFlow(srcFlowId string, destFlowId string) {
+	conf, err := config.NewConfiguration()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	CopyFlow(conf, srcFlowId, destFlowId)
+}
