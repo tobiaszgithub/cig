@@ -6,7 +6,6 @@ package cmd
 
 import (
 	"log"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
@@ -24,19 +23,8 @@ parameters (key/value pairs) of a designtime integration artifact by Id and vers
 			log.Fatal("Required parameter flow-id not set")
 		}
 		fileName, _ := cmd.Flags().GetString("output-file")
-		var outputFile *os.File
-		var err error
-		if fileName != "" {
-			log.Println("File name: ", fileName)
-			outputFile, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
-			if err != nil {
-				log.Fatal("Error creating file: ", err)
-			}
-			defer outputFile.Close()
 
-		}
-
-		client.RunGetFlowConfigs(args[0], outputFile)
+		client.RunGetFlowConfigs(args[0], fileName)
 	},
 }
 

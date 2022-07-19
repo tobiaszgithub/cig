@@ -219,12 +219,12 @@ func InspectFlow(conf config.Configuration, flowId string) (*model.FlowByIdRespo
 	return &decodedRes, err
 }
 
-func DownloadFlow(conf config.Configuration, flowId string) error {
+func DownloadFlow(conf config.Configuration, flowId string, outputFile string) (string, error) {
 	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')/$value"
 
 	request, err := http.NewRequest("GET", flowURL, nil)
 	if err != nil {
-		return err
+		return "", err
 	}
 	request.Header.Set("Accept", "application/json")
 
@@ -232,42 +232,53 @@ func DownloadFlow(conf config.Configuration, flowId string) error {
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-
+	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
+	if !statusOk {
 		bodyBytes, err := io.ReadAll(response.Body)
 		if err != nil {
-			return err
+			return "", err
 		}
-		return fmt.Errorf(string(bodyBytes))
+		return "", fmt.Errorf(string(bodyBytes))
 	}
 
 	defer response.Body.Close()
 
-	cwd, err := os.Getwd()
+	n, err := saveBodyContent(outputFile, response.Body)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	flowOutPath := filepath.Join(cwd, flowId+".zip")
-	//log.Println(packageOutPath)
+	output := fmt.Sprintf("File created: %s \n", outputFile)
+	output += fmt.Sprintf("number of bytes: %d", n)
+	return output, nil
+}
 
-	out, err := os.Create(flowOutPath)
+func saveBodyContent(fileName string, src io.Reader) (writtenBytes int64, err error) {
+	// cwd, err := os.Getwd()
+	// if err != nil {
+	// 	return 0, err
+	// }
+
+	// flowOutPath := filepath.Join(cwd, fileName)
+
+	out, err := os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer out.Close()
 
-	n, err := io.Copy(out, response.Body)
+	n, err := io.Copy(out, src)
 	if err != nil {
-		return err
+		return n, err
 	}
-	log.Println(flowOutPath + " created")
-	log.Println("number of bytes: ", n)
+	// log.Println(flowOutPath + " created")
+	// log.Println("number of bytes: ", n)
 
-	return nil
+	return n, nil
+	//body, _ := ioutil.ReadAll(response.Body)
 }
 
 func GetFlowConfigs(conf config.Configuration, flowName string) (*model.FlowConfigurations, error) {
