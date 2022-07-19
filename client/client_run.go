@@ -2,7 +2,6 @@ package client
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"os"
 
@@ -81,30 +80,48 @@ func RunInspectFlow(flowId string) {
 	resp.Print()
 }
 
-func RunDownloadFlow(flowId string) {
+func RunDownloadFlow(flowId string, outputFile string) {
 	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = DownloadFlow(conf, flowId)
+	if outputFile == "" {
+		outputFile = flowId + ".zip"
+	}
+
+	resp, err := DownloadFlow(conf, flowId, outputFile)
 	if err != nil {
 		log.Fatal("Error in DownloadFlow: ", err)
 	}
 
+	fmt.Println(resp)
+
 }
 
-func RunGetFlowConfigs(flowName string, outputFile io.WriteSeeker) {
+func RunGetFlowConfigs(flowName string, fileName string) {
 	conf, err := config.NewConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	resp, err := GetFlowConfigs(conf, flowName)
 	if err != nil {
 		log.Fatal("Error in GetFlowConfigs: ", err)
 	}
 
 	resp.Print(os.Stdout)
+
+	var outputFile *os.File
+
+	if fileName != "" {
+		log.Println("File name: ", fileName)
+		outputFile, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
+		if err != nil {
+			log.Fatal("Error creating file: ", err)
+		}
+		defer outputFile.Close()
+	}
 
 	if outputFile != nil {
 		resp.Print(outputFile)

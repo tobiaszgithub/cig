@@ -21,7 +21,8 @@ Integration flows of configure-only packages cannot be downloaded.`,
 		if len(args) == 0 {
 			log.Fatal("Required parameter flow-id not set")
 		}
-		client.RunDownloadFlow(args[0])
+		fileName, _ := cmd.Flags().GetString("output-file")
+		client.RunDownloadFlow(args[0], fileName)
 	},
 }
 
@@ -37,4 +38,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// flowDownloadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	flowDownloadCmd.Flags().StringP("output-file", "o", "", "The output file with integration flow [default value flowId.zip]")
 }
