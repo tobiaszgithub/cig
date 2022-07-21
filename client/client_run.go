@@ -154,8 +154,8 @@ func RunCreateFlow(name string, id string, packageid string, fileName string) {
 	if err != nil {
 		log.Fatal("Error in CreateFlow:\n", err)
 	}
-
-	fmt.Println(resp)
+	//fmt.Println(resp)
+	resp.Print()
 
 }
 
@@ -186,4 +186,16 @@ func RunDeployFlow(id string, version string) {
 	}
 
 	fmt.Println(resp)
+}
+
+func RunCopyFlow(srcFlowId string, destFlowId string, destFlowName string, destPackageId string) {
+	conf, err := config.NewConfiguration()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = CopyFlow(conf, srcFlowId, destFlowId, destFlowName, destPackageId)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

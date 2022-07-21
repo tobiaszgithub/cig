@@ -14,7 +14,7 @@
       "args": ["flow", "update-configs", "PurchaseOrder", "-p", "Key=ExProp1Value,Value=value1", "-p", "Key=bodySize,Value=90"]
     },
     {
-      "name": "Launch Package with arguments - hic-neo-dev",
+      "name": "hic-neo-dev: Launch Package with arguments",
       "type": "go",
       "request": "launch",
       "mode": "auto",
@@ -39,6 +39,15 @@
       "program": "${workspaceRoot}",
       "env": {},
       "args": ["flow", "describe-configs", "PurchaseOrder", "-o", "purchaseOrder_config.json" ]
+    },
+    {
+      "name": "cloud-foundry-dev: flow copy PurchaseOrder PurchaseOrderCopy1",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceRoot}",
+      "env": {},
+      "args": ["flow", "copy", "PurchaseOrder", "PurchaseOrderCopy5" ]
     }
   ]
 }
