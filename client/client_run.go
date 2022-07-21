@@ -199,3 +199,15 @@ func RunCopyFlow(srcFlowId string, destFlowId string, destFlowName string, destP
 		log.Fatal(err)
 	}
 }
+
+func RunTransportFlow(srcFlowId string, destFlowId string, destFlowName string, destPackageId string) {
+	// conf, err := config.NewConfiguration()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// err = CopyFlow(conf, srcFlowId, destFlowId, destFlowName, destPackageId)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+}
