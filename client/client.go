@@ -212,6 +212,12 @@ func InspectFlow(conf config.Configuration, flowId string) (*model.FlowByIdRespo
 
 	var decodedRes model.FlowByIdResponse
 
+	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
+	if !statusOk {
+		body, _ := ioutil.ReadAll(response.Body)
+		return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
+	}
+
 	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
 		return nil, err
 	}
@@ -471,10 +477,10 @@ func getCsrfTokenAndCookies(conf config.Configuration) (string, []*http.Cookie, 
 	return csrfToken, cookies, nil
 }
 
-func CreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) (string, error) {
+func CreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) (*model.FlowByIdResponse, error) {
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var encodedContent string
@@ -482,7 +488,7 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 	if fileName != "" {
 		contentData, err := ioutil.ReadFile(fileName)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		encodedContent = base64.StdEncoding.EncodeToString(contentData)
@@ -510,7 +516,7 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 
 	requestBodyJson, err := json.Marshal(requestBody)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	createFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts"
@@ -518,7 +524,7 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 
 	request, err := http.NewRequest("POST", createFlowURL, bytes.NewBuffer(requestBodyJson))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	request.Header.Set("Content-Type", "application/json")
@@ -532,17 +538,26 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer response.Body.Close()
 
-	body, _ := ioutil.ReadAll(response.Body)
+	var decodedRes model.FlowByIdResponse
+
+	//body, _ := ioutil.ReadAll(response.Body)
+
 	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
 	if !statusOk {
-		return "", fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
+		body, _ := ioutil.ReadAll(response.Body)
+		return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
 	}
-	bodyStr := string(body) + "\n"
-	return bodyStr, nil
+
+	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
+		return nil, err
+	}
+
+	//bodyStr := string(body) + "\n"
+	return &decodedRes, nil
 }
 
 func UpdateFlow(conf config.Configuration, name string, id string, version string, fileName string) (string, error) {
@@ -654,6 +669,61 @@ func DeployFlow(conf config.Configuration, id string, version string) (string, e
 	return bodyStr, nil
 }
 
-func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string) {
+func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, destFlowName string, destPackageId string) error {
+
+	srcFlow, err := InspectFlow(conf, srcFlowId)
+	if err != nil {
+		return err
+	}
+
+	tmpFileName, err := getTmpFileName()
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmpFileName)
+
+	resp, err := DownloadFlow(conf, srcFlowId, tmpFileName)
+	if err != nil {
+		return err
+	}
+	log.Print(resp)
+
+	if destFlowName == "" {
+		destFlowName = srcFlow.D.Name
+	}
+
+	if destPackageId == "" {
+		destPackageId = srcFlow.D.PackageID
+	}
+
+	createResp, err := CreateFlow(conf, destFlowName, destFlowId, destPackageId, tmpFileName)
+	if err != nil {
+		return err
+	}
+
+	//log.Print(createResp.Print())
+	createResp.Print()
+
+	return nil
+}
+
+func getTmpFileName() (string, error) {
+	tmpfile, err := os.CreateTemp("", "flow*.zip")
+	if err != nil {
+		return "", err
+	}
+
+	err = tmpfile.Close()
+	if err != nil {
+		return "", err
+	}
+	tmpFileName := tmpfile.Name()
+
+	err = os.Remove(tmpfile.Name())
+	if err != nil {
+		return "", err
+	}
+
+	return tmpFileName, nil
 
 }

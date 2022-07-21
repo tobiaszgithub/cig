@@ -17,7 +17,7 @@ var flowCopyCmd = &cobra.Command{
 	Use:   "copy [source-flow-id] [destination-flow-id]",
 	Short: "Copy an integration flow",
 	Long: `You can use the following subcommand to copy
-an integration flow of designtime`,
+an integration flow of designtime. `,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("flowCopy called")
 		if len(args) == 0 {
@@ -26,8 +26,10 @@ an integration flow of designtime`,
 		if len(args) == 1 {
 			log.Fatal("Required parameter destination-flow-id not set")
 		}
+		destFlowName, _ := cmd.Flags().GetString("dest-flow-name")
+		destPackageId, _ := cmd.Flags().GetString("dest-package-id")
 
-		client.RunCopyFlow(args[0], args[1])
+		client.RunCopyFlow(args[0], args[1], destFlowName, destPackageId)
 
 	},
 }
@@ -44,4 +46,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// flowCopyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	flowCopyCmd.Flags().StringP("dest-flow-name", "n", "", "Destination Integration Flow name")
+	flowCopyCmd.Flags().StringP("dest-package-id", "p", "", "Destination Integration Flow package id")
 }
