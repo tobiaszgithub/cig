@@ -727,3 +727,41 @@ func getTmpFileName() (string, error) {
 	return tmpFileName, nil
 
 }
+
+func TransportFlow(conf config.Configuration, srcFlowId string, destConf config.Configuration, destFlowId string, destFlowName string, destPackageId string) error {
+
+	srcFlow, err := InspectFlow(conf, srcFlowId)
+	if err != nil {
+		return err
+	}
+
+	tmpFileName, err := getTmpFileName()
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmpFileName)
+
+	resp, err := DownloadFlow(conf, srcFlowId, tmpFileName)
+	if err != nil {
+		return err
+	}
+	log.Print(resp)
+
+	if destFlowName == "" {
+		destFlowName = srcFlow.D.Name
+	}
+
+	if destPackageId == "" {
+		destPackageId = srcFlow.D.PackageID
+	}
+
+	createResp, err := CreateFlow(destConf, destFlowName, destFlowId, destPackageId, tmpFileName)
+	if err != nil {
+		return err
+	}
+
+	//log.Print(createResp.Print())
+	createResp.Print()
+
+	return nil
+}

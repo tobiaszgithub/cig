@@ -44,7 +44,64 @@ type Authorization struct {
 	TokenURL     string `json:"tokenURL"`
 }
 
-func NewConfiguration() (Configuration, error) {
+func NewDefaultConfiguration() (Configuration, error) {
+
+	//conf := Configuration{}
+
+	conf, err := NewConfiguration("")
+	if err != nil {
+		return conf, err
+	}
+
+	return conf, err
+	// path, _ := os.Getwd()
+	// println("os.Getwd(): ", path)
+
+	// configFile, err := os.Open("./config.json")
+	// if err != nil {
+	// 	homePath, _ := os.UserHomeDir()
+	// 	configFilePath := filepath.Join(homePath, ".cig", "config.json")
+	// 	log.Println("Config file path: ", configFilePath)
+	// 	configFile, err = os.Open(configFilePath)
+	// 	if err != nil {
+	// 		err = fmt.Errorf("error opening config.json: %w", err)
+	// 		return conf, err
+	// 	}
+
+	// }
+
+	// defer configFile.Close()
+
+	// confAll := ConfigurationFile{}
+
+	// err = json.NewDecoder(configFile).Decode(&confAll)
+	// if err != nil {
+	// 	return conf, err
+	// }
+	// for _, v := range confAll.Tenants {
+	// 	if confAll.ActiveTenantKey == v.Key {
+	// 		conf.Key = v.Key
+	// 		conf.ApiURL = v.ApiURL
+	// 		conf.Authorization.Type = v.Authorization.Type
+	// 		conf.Authorization.Username = v.Authorization.Username
+	// 		conf.Authorization.Password = v.Authorization.Password
+	// 		conf.Authorization.ClientID = v.Authorization.ClientID
+	// 		conf.Authorization.ClientSecret = v.Authorization.ClientSecret
+	// 		conf.Authorization.TokenURL = v.Authorization.TokenURL
+	// 		break
+	// 	}
+	// }
+
+	// if conf.ApiURL == "" {
+
+	// 	err = errors.New("provide configuration file with tenant ApiURL")
+	// 	return conf, err
+	// }
+
+	// return conf, err
+}
+
+func NewConfiguration(tenantKey string) (Configuration, error) {
 	conf := Configuration{}
 
 	// path, _ := os.Getwd()
@@ -71,8 +128,13 @@ func NewConfiguration() (Configuration, error) {
 	if err != nil {
 		return conf, err
 	}
+
+	if tenantKey == "" {
+		tenantKey = confAll.ActiveTenantKey
+	}
+
 	for _, v := range confAll.Tenants {
-		if confAll.ActiveTenantKey == v.Key {
+		if tenantKey == v.Key {
 			conf.Key = v.Key
 			conf.ApiURL = v.ApiURL
 			conf.Authorization.Type = v.Authorization.Type

@@ -25,10 +25,14 @@ an integration flow of designtime between systems. `,
 		if len(args) == 1 {
 			log.Fatal("Required parameter destination-flow-id not set")
 		}
+		destTenantKey, _ := cmd.Flags().GetString("dest-tenant-key")
+		if destTenantKey == "" {
+			log.Fatal("Required flag dest-tenant-key not set")
+		}
 		destFlowName, _ := cmd.Flags().GetString("dest-flow-name")
 		destPackageId, _ := cmd.Flags().GetString("dest-package-id")
 
-		client.RunTransportFlow(args[0], args[1], destFlowName, destPackageId)
+		client.RunTransportFlow(args[0], args[1], destTenantKey, destFlowName, destPackageId)
 	},
 }
 
@@ -44,6 +48,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// flowTransportCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	flowTransportCmd.Flags().StringP("dest-tenant-key", "t", "", "Destination tenant key from configuration file")
 	flowTransportCmd.Flags().StringP("dest-flow-name", "n", "", "Destination Integration Flow name")
 	flowTransportCmd.Flags().StringP("dest-package-id", "p", "", "Destination Integration Flow package id")
 }
