@@ -77,12 +77,13 @@ type FlowByIdResponse struct {
 	D IntegrationFlow `json:"d"`
 }
 
-func (r *FlowByIdResponse) Print() {
+func (r *FlowByIdResponse) Print(out io.Writer) {
 	b, err := json.MarshalIndent(r, "", "\t")
 	if err != nil {
 		panic("Could not Marshal IPByIdResponse")
 	}
-	fmt.Println(string(b))
+	//fmt.Println(string(b))
+	fmt.Fprintln(out, string(b))
 }
 
 type IntegrationFlow struct {

@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
@@ -32,7 +33,7 @@ an integration flow of designtime between systems. `,
 		destFlowName, _ := cmd.Flags().GetString("dest-flow-name")
 		destPackageId, _ := cmd.Flags().GetString("dest-package-id")
 
-		client.RunTransportFlow(args[0], args[1], destTenantKey, destFlowName, destPackageId)
+		client.RunTransportFlow(os.Stdout, args[0], args[1], destTenantKey, destFlowName, destPackageId)
 	},
 }
 

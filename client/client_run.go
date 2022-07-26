@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -77,7 +78,7 @@ func RunInspectFlow(flowId string) {
 	if err != nil {
 		log.Fatal("Error in InspectFlow: ", err)
 	}
-	resp.Print()
+	resp.Print(os.Stdout)
 }
 
 func RunDownloadFlow(flowId string, outputFile string) {
@@ -155,7 +156,7 @@ func RunCreateFlow(name string, id string, packageid string, fileName string) {
 		log.Fatal("Error in CreateFlow:\n", err)
 	}
 	//fmt.Println(resp)
-	resp.Print()
+	resp.Print(os.Stdout)
 
 }
 
@@ -200,7 +201,7 @@ func RunCopyFlow(srcFlowId string, destFlowId string, destFlowName string, destP
 	}
 }
 
-func RunTransportFlow(srcFlowId string, destFlowId string, destTenantKey string, destFlowName string, destPackageId string) {
+func RunTransportFlow(out io.Writer, srcFlowId string, destFlowId string, destTenantKey string, destFlowName string, destPackageId string) {
 	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
@@ -211,7 +212,7 @@ func RunTransportFlow(srcFlowId string, destFlowId string, destTenantKey string,
 		log.Fatal(err)
 	}
 
-	err = TransportFlow(conf, srcFlowId, destConf, destFlowId, destFlowName, destPackageId)
+	err = TransportFlow(out, conf, srcFlowId, destConf, destFlowId, destFlowName, destPackageId)
 	if err != nil {
 		log.Fatal(err)
 	}

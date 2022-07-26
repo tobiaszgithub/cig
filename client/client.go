@@ -702,7 +702,7 @@ func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, de
 	}
 
 	//log.Print(createResp.Print())
-	createResp.Print()
+	createResp.Print(os.Stdout)
 
 	return nil
 }
@@ -728,7 +728,7 @@ func getTmpFileName() (string, error) {
 
 }
 
-func TransportFlow(conf config.Configuration, srcFlowId string, destConf config.Configuration, destFlowId string, destFlowName string, destPackageId string) error {
+func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, destConf config.Configuration, destFlowId string, destFlowName string, destPackageId string) error {
 
 	srcFlow, err := InspectFlow(conf, srcFlowId)
 	if err != nil {
@@ -745,7 +745,7 @@ func TransportFlow(conf config.Configuration, srcFlowId string, destConf config.
 	if err != nil {
 		return err
 	}
-	log.Print(resp)
+	fmt.Fprintf(out, "%s\n", resp)
 
 	if destFlowName == "" {
 		destFlowName = srcFlow.D.Name
@@ -761,11 +761,11 @@ func TransportFlow(conf config.Configuration, srcFlowId string, destConf config.
 	var updateResp string
 	if destFlow != nil && destFlow.D.ID != "" {
 		updateResp, err = UpdateFlow(destConf, destFlowName, destFlowId, "active", tmpFileName)
-		fmt.Print(updateResp)
+		fmt.Fprintf(out, "Integration flow updated. Response: %s\n", updateResp)
 	} else {
 		createResp, err = CreateFlow(destConf, destFlowName, destFlowId, destPackageId, tmpFileName)
-		//log.Print(createResp.Print())
-		createResp.Print()
+		fmt.Fprintf(out, "Integration flow created.\n")
+		createResp.Print(out)
 	}
 
 	if err != nil {
