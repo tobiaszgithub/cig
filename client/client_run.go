@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -11,7 +12,7 @@ import (
 
 func RunGetIntegrationPackages() {
 
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,7 +28,7 @@ func RunGetIntegrationPackages() {
 }
 
 func RunInspectIntegrationPackage(packageId string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,7 +42,7 @@ func RunInspectIntegrationPackage(packageId string) {
 }
 
 func RunGetFlowsOfIntegrationPackage(packageName string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,7 +56,7 @@ func RunGetFlowsOfIntegrationPackage(packageName string) {
 }
 
 func RunDownloadIntegrationPackage(packageName string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,7 +69,7 @@ func RunDownloadIntegrationPackage(packageName string) {
 }
 
 func RunInspectFlow(flowId string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,11 +78,11 @@ func RunInspectFlow(flowId string) {
 	if err != nil {
 		log.Fatal("Error in InspectFlow: ", err)
 	}
-	resp.Print()
+	resp.Print(os.Stdout)
 }
 
 func RunDownloadFlow(flowId string, outputFile string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,7 +101,7 @@ func RunDownloadFlow(flowId string, outputFile string) {
 }
 
 func RunGetFlowConfigs(flowName string, fileName string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,7 +130,7 @@ func RunGetFlowConfigs(flowName string, fileName string) {
 }
 
 func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrinter) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -145,7 +146,7 @@ func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrin
 }
 
 func RunCreateFlow(name string, id string, packageid string, fileName string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -155,12 +156,12 @@ func RunCreateFlow(name string, id string, packageid string, fileName string) {
 		log.Fatal("Error in CreateFlow:\n", err)
 	}
 	//fmt.Println(resp)
-	resp.Print()
+	resp.Print(os.Stdout)
 
 }
 
 func RunUpdateFlow(name string, id string, version string, fileName string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -175,7 +176,7 @@ func RunUpdateFlow(name string, id string, version string, fileName string) {
 }
 
 func RunDeployFlow(id string, version string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -189,12 +190,29 @@ func RunDeployFlow(id string, version string) {
 }
 
 func RunCopyFlow(srcFlowId string, destFlowId string, destFlowName string, destPackageId string) {
-	conf, err := config.NewConfiguration()
+	conf, err := config.NewDefaultConfiguration()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = CopyFlow(conf, srcFlowId, destFlowId, destFlowName, destPackageId)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func RunTransportFlow(out io.Writer, srcFlowId string, destFlowId string, destTenantKey string, destFlowName string, destPackageId string) {
+	conf, err := config.NewDefaultConfiguration()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	destConf, err := config.NewConfiguration(destTenantKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = TransportFlow(out, conf, srcFlowId, destConf, destFlowId, destFlowName, destPackageId)
 	if err != nil {
 		log.Fatal(err)
 	}

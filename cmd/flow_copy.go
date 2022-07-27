@@ -5,7 +5,6 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -19,7 +18,7 @@ var flowCopyCmd = &cobra.Command{
 	Long: `You can use the following subcommand to copy
 an integration flow of designtime. `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("flowCopy called")
+		//fmt.Println("flowCopy called")
 		if len(args) == 0 {
 			log.Fatal("Required parameter source-flow-id not set")
 		}

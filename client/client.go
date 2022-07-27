@@ -47,7 +47,7 @@ func GetClient(conf config.Configuration) *http.Client {
 
 func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error) {
 	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages"
-	log.Println(integrationPackagesURL)
+	log.Println("GET ", integrationPackagesURL)
 
 	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
 	if err != nil {
@@ -77,7 +77,7 @@ func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error
 
 func InspectIntegrationPackage(conf config.Configuration, packageId string) (*model.IPByIdResponse, error) {
 	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageId + "')"
-	log.Println(integrationPackagesURL)
+	log.Println("GET ", integrationPackagesURL)
 
 	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
 	if err != nil {
@@ -106,7 +106,7 @@ func InspectIntegrationPackage(conf config.Configuration, packageId string) (*mo
 
 func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string) (*model.FlowsOfIPResponse, error) {
 	flowsOfIntegrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')/IntegrationDesigntimeArtifacts"
-	log.Println(flowsOfIntegrationPackagesURL)
+	log.Println("GET ", flowsOfIntegrationPackagesURL)
 
 	request, err := http.NewRequest("GET", flowsOfIntegrationPackagesURL, nil)
 	if err != nil {
@@ -142,7 +142,7 @@ func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string)
 
 func DownloadIntegrationPackage(conf config.Configuration, packageName string) error {
 	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')/$value"
-
+	log.Println("GET ", integrationPackagesURL)
 	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
 	if err != nil {
 		return err
@@ -193,7 +193,7 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 
 func InspectFlow(conf config.Configuration, flowId string) (*model.FlowByIdResponse, error) {
 	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')"
-	log.Println(flowURL)
+	log.Println("GET ", flowURL)
 	request, err := http.NewRequest("GET", flowURL, nil)
 	if err != nil {
 		return nil, err
@@ -227,7 +227,7 @@ func InspectFlow(conf config.Configuration, flowId string) (*model.FlowByIdRespo
 
 func DownloadFlow(conf config.Configuration, flowId string, outputFile string) (string, error) {
 	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')/$value"
-
+	log.Println("GET ", flowURL)
 	request, err := http.NewRequest("GET", flowURL, nil)
 	if err != nil {
 		return "", err
@@ -289,7 +289,7 @@ func saveBodyContent(fileName string, src io.Reader) (writtenBytes int64, err er
 
 func GetFlowConfigs(conf config.Configuration, flowName string) (*model.FlowConfigurations, error) {
 	configsFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/Configurations"
-	log.Println(configsFlowURL)
+	log.Println("GET ", configsFlowURL)
 	request, err := http.NewRequest("GET", configsFlowURL, nil)
 	if err != nil {
 		return nil, err
@@ -336,7 +336,7 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []mod
 		}
 		updateFlowConfigsURL := conf.ApiURL +
 			"/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$links/Configurations('" + c.ParameterKey + "')"
-		log.Println(updateFlowConfigsURL)
+		log.Println("PUT ", updateFlowConfigsURL)
 
 		request, err := http.NewRequest("PUT", updateFlowConfigsURL, bytes.NewBuffer(requestBodyJson))
 		if err != nil {
@@ -399,7 +399,7 @@ func UpdateFlowConfigsBatch(conf config.Configuration, flowName string, configs 
 
 		updateFlowConfigsURL := //conf.ApiURL +
 			"IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$links/Configurations('" + c.ParameterKey + "')"
-		log.Println(updateFlowConfigsURL)
+		log.Println("POST ", updateFlowConfigsURL)
 
 		singleRequest :=
 			"--changeset_abc\r\n" +
@@ -520,7 +520,7 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 	}
 
 	createFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts"
-	log.Println(createFlowURL)
+	log.Println("POST ", createFlowURL)
 
 	request, err := http.NewRequest("POST", createFlowURL, bytes.NewBuffer(requestBodyJson))
 	if err != nil {
@@ -575,9 +575,9 @@ func UpdateFlow(conf config.Configuration, name string, id string, version strin
 		}
 
 		encodedContent = base64.StdEncoding.EncodeToString(contentData)
-		println()
-		println(encodedContent)
-		println()
+		// println()
+		// println(encodedContent)
+		// println()
 	}
 
 	var requestBody map[string]string
@@ -599,7 +599,7 @@ func UpdateFlow(conf config.Configuration, name string, id string, version strin
 	}
 
 	updateFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + id + "',Version='" + version + "')"
-	log.Println(updateFlowURL)
+	log.Println("PUT ", updateFlowURL)
 
 	request, err := http.NewRequest("PUT", updateFlowURL, bytes.NewBuffer(requestBodyJson))
 	if err != nil {
@@ -638,7 +638,7 @@ func DeployFlow(conf config.Configuration, id string, version string) (string, e
 	}
 
 	deployFlowURL := conf.ApiURL + "/DeployIntegrationDesigntimeArtifact?Id='" + id + "'&Version='" + version + "'"
-	log.Println(deployFlowURL)
+	log.Println("POST ", deployFlowURL)
 
 	request, err := http.NewRequest("POST", deployFlowURL, nil)
 	if err != nil {
@@ -702,7 +702,7 @@ func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, de
 	}
 
 	//log.Print(createResp.Print())
-	createResp.Print()
+	createResp.Print(os.Stdout)
 
 	return nil
 }
@@ -726,4 +726,51 @@ func getTmpFileName() (string, error) {
 
 	return tmpFileName, nil
 
+}
+
+func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, destConf config.Configuration, destFlowId string, destFlowName string, destPackageId string) error {
+
+	srcFlow, err := InspectFlow(conf, srcFlowId)
+	if err != nil {
+		return err
+	}
+
+	tmpFileName, err := getTmpFileName()
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmpFileName)
+
+	resp, err := DownloadFlow(conf, srcFlowId, tmpFileName)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(out, "%s\n", resp)
+
+	if destFlowName == "" {
+		destFlowName = srcFlow.D.Name
+	}
+
+	if destPackageId == "" {
+		destPackageId = srcFlow.D.PackageID
+	}
+
+	destFlow, _ := InspectFlow(destConf, destFlowId)
+
+	var createResp *model.FlowByIdResponse
+	var updateResp string
+	if destFlow != nil && destFlow.D.ID != "" {
+		updateResp, err = UpdateFlow(destConf, destFlowName, destFlowId, "active", tmpFileName)
+		fmt.Fprintf(out, "Integration flow updated. Response: %s\n", updateResp)
+	} else {
+		createResp, err = CreateFlow(destConf, destFlowName, destFlowId, destPackageId, tmpFileName)
+		fmt.Fprintf(out, "Integration flow created.\n")
+		createResp.Print(out)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
