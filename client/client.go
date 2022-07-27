@@ -57,17 +57,23 @@ func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error
 
 	httpClient := GetClient(conf)
 
-	rawRes, err := httpClient.Do(request)
+	response, err := httpClient.Do(request)
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer rawRes.Body.Close()
+	defer response.Body.Close()
+
+	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
+	if !statusOk {
+		body, _ := ioutil.ReadAll(response.Body)
+		return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
+	}
 
 	var decodedRes model.IPResponse
 
-	if err := json.NewDecoder(rawRes.Body).Decode(&decodedRes); err != nil {
+	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
 		return nil, err
 	}
 
@@ -542,8 +548,6 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 	}
 	defer response.Body.Close()
 
-	var decodedRes model.FlowByIdResponse
-
 	//body, _ := ioutil.ReadAll(response.Body)
 
 	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
@@ -551,6 +555,8 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 		body, _ := ioutil.ReadAll(response.Body)
 		return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
 	}
+
+	var decodedRes model.FlowByIdResponse
 
 	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
 		return nil, err
