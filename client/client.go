@@ -1,17 +1,20 @@
 package client
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/beeekind/go-authhttp"
 	"github.com/tobiaszgithub/cig/config"
@@ -759,8 +762,12 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 	}
 	fmt.Fprintf(out, "%s\n", resp)
 
-	if destFlowName == "" {
-		destFlowName = srcFlow.D.Name
+	if srcFlowId != destFlowId {
+		tmpFileName, err = adjustDownloadedFlow(srcFlowId, destFlowId, tmpFileName)
+		if err != nil {
+			return err
+		}
+		defer os.Remove(tmpFileName)
 	}
 
 	if destPackageId == "" {
@@ -772,9 +779,16 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 	var createResp *model.FlowByIdResponse
 	var updateResp string
 	if destFlow != nil && destFlow.D.ID != "" {
+		if destFlowName == "" {
+			destFlowName = destFlow.D.Name
+		}
 		updateResp, err = UpdateFlow(destConf, destFlowName, destFlowId, "active", tmpFileName)
 		fmt.Fprintf(out, "Integration flow updated. Response: %s\n", updateResp)
 	} else {
+		if destFlowName == "" {
+			destFlowName = srcFlow.D.Name
+		}
+
 		createResp, err = CreateFlow(destConf, destFlowName, destFlowId, destPackageId, tmpFileName)
 		fmt.Fprintf(out, "Integration flow created.\n")
 		createResp.Print(out)
@@ -785,4 +799,189 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 	}
 
 	return nil
+}
+
+func adjustDownloadedFlow(srcFlowId, destFlowId string, zipFile string) (newZipFile string, err error) {
+
+	fileDestinationFolder := zipFile[:len(zipFile)-4]
+
+	err = unzipFile(zipFile, fileDestinationFolder)
+	if err != nil {
+		return "", fmt.Errorf("error during uzipping file: %w", err)
+	}
+	log.Printf("file: %s has been unzipped to directory %s\n", zipFile, fileDestinationFolder)
+
+	manifestFile := filepath.Join(fileDestinationFolder, "META-INF/MANIFEST.MF")
+	oldValue := "SymbolicName: " + srcFlowId
+	newValue := "SymbolicName: " + destFlowId
+	err = replaceFileContent(manifestFile, oldValue, newValue)
+	if err != nil {
+		return "", fmt.Errorf("error updating META-INF/MANIFEST.MF file: %w", err)
+	}
+
+	projectFile := filepath.Join(fileDestinationFolder, ".project")
+	oldValue = "<name>" + srcFlowId + "</name>"
+	newValue = "<name>" + destFlowId + "</name>"
+	err = replaceFileContent(projectFile, oldValue, newValue)
+	if err != nil {
+		return "", fmt.Errorf("error updating .project file: %w", err)
+	}
+
+	newZipFile = fileDestinationFolder + "Copy.zip"
+	if err := zipSource(fileDestinationFolder+string(filepath.Separator), newZipFile); err != nil {
+		return "", fmt.Errorf("error creating new zip file: %w", err)
+	}
+	log.Printf("new zip file has been created: %s", newZipFile)
+
+	return newZipFile, nil
+}
+
+func replaceFileContent(filename string, old string, new string) error {
+
+	oldContents, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return fmt.Errorf("error reading file: %w", err)
+	}
+	newContents := strings.Replace(string(oldContents), old, new, -1)
+	err = ioutil.WriteFile(filename, []byte(newContents), fs.ModePerm)
+	if err != nil {
+		return fmt.Errorf("error updating file: %w", err)
+	}
+	log.Printf("File: %s has been updated.\n", filename)
+
+	return nil
+}
+
+func unzipFile(sourceFile, targetDirectory string) (err error) {
+
+	openedFile, err := zip.OpenReader(sourceFile)
+	if err != nil {
+		return err
+	}
+	defer openedFile.Close()
+
+	for _, file := range openedFile.File {
+		filePath := filepath.Join(targetDirectory, file.Name)
+		//log.Println("unzipping file", filePath)
+		if file.FileInfo().IsDir() {
+			// create the directory
+			os.MkdirAll(filePath, os.ModePerm)
+			continue
+		}
+		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+			panic(err)
+		} else {
+			destinationFile, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, file.Mode())
+			if err != nil {
+				panic(err)
+			}
+			//Opening the file and copy it's contents
+			fileInArchive, err := file.Open()
+
+			if err != nil {
+				return err
+			}
+
+			// fileName := file.Name
+			// if fileName == "META-INF/MANIFEST.MF" {
+			// 	//br := bufio.NewReader(fileInArchive)
+			// 	oldContents, err := io.ReadAll(fileInArchive)
+			// 	if err != nil {
+			// 		return fmt.Errorf("error reading file: %w", err)
+			// 	}
+			// 	newContents := strings.Replace(string(oldContents), "SymbolicName: "+srcFlowId, "SymbolicName: "+destFlowId, -1)
+			// 	if _, err := io.Copy(destinationFile, strings.NewReader(newContents)); err != nil {
+			// 		panic(err)
+			// 	}
+			// 	log.Printf("File: %s has been updated.\n", fileName)
+			// 	destinationFile.Close()
+			// 	fileInArchive.Close()
+			// 	continue
+
+			// }
+
+			// if fileName == ".project" {
+
+			// 	oldContents, err := io.ReadAll(fileInArchive)
+			// 	if err != nil {
+			// 		return fmt.Errorf("error reading file: %w", err)
+			// 	}
+			// 	newContents := strings.Replace(string(oldContents), "<name>"+srcFlowId+"</name>", "<name>"+destFlowId+"</name>", 1)
+			// 	if _, err := io.Copy(destinationFile, strings.NewReader(newContents)); err != nil {
+			// 		panic(err)
+			// 	}
+			// 	log.Printf("File: %s has been updated.\n", fileName)
+			// 	destinationFile.Close()
+			// 	fileInArchive.Close()
+			// 	continue
+			// }
+
+			if _, err := io.Copy(destinationFile, fileInArchive); err != nil {
+				panic(err)
+			}
+
+			destinationFile.Close()
+			fileInArchive.Close()
+		}
+
+	}
+
+	return nil
+}
+
+func zipSource(sourceDirectory, targetFile string) error {
+	// 1. Create a ZIP file and zip.Writer
+	f, err := os.Create(targetFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	writer := zip.NewWriter(f)
+	defer writer.Close()
+
+	// 2. Go through all the files of the source
+	return filepath.Walk(sourceDirectory, func(path string, info os.FileInfo, err error) error {
+		//log.Println(path)
+		if err != nil {
+			return err
+		}
+
+		// 3. Create a local file header
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		// set compression
+		header.Method = zip.Deflate
+
+		// 4. Set relative path of a file as the header name
+		header.Name, err = filepath.Rel(filepath.Dir(sourceDirectory), path)
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			header.Name += "/"
+		}
+
+		// 5. Create writer for the file header and save content of the file
+		headerWriter, err := writer.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		_, err = io.Copy(headerWriter, f)
+		return err
+	})
 }
