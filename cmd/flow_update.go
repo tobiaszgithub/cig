@@ -5,8 +5,11 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // updateFlowCmd represents the updateFlow command
@@ -15,12 +18,17 @@ var flowUpdateCmd = &cobra.Command{
 	Short: "Update an integration flow",
 	Long:  `You can use the following request to update an integration flow from designtime`,
 	Run: func(cmd *cobra.Command, args []string) {
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		name, _ := cmd.Flags().GetString("name")
 		id, _ := cmd.Flags().GetString("id")
 		fileName, _ := cmd.Flags().GetString("content-file-name")
 		version, _ := cmd.Flags().GetString("version")
 
-		client.RunUpdateFlow(name, id, version, fileName)
+		client.RunUpdateFlow(conf, name, id, version, fileName)
 	},
 }
 

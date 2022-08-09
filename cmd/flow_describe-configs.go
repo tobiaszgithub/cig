@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // flowConfigurationsCmd represents the flowConfigurations command
@@ -19,12 +20,16 @@ var flowConfigurationsCmd = &cobra.Command{
 	Long: `You can use the following request to get the configuration
 parameters (key/value pairs) of a designtime integration artifact by Id and version.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if len(args) == 0 {
 			log.Fatal("Required parameter flow-id not set")
 		}
 		fileName, _ := cmd.Flags().GetString("output-file")
 
-		client.RunGetFlowConfigs(args[0], fileName)
+		client.RunGetFlowConfigs(conf, args[0], fileName)
 	},
 }
 

@@ -5,8 +5,11 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // packageLsCmd represents the packageLs command
@@ -17,10 +20,15 @@ var packageLsCmd = &cobra.Command{
 Optionaly you can use this subcommand to get all integration flows of the specified package-id`,
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Println("packageLs called")
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		if len(args) > 0 {
-			client.RunGetFlowsOfIntegrationPackage(args[0])
+			client.RunGetFlowsOfIntegrationPackage(conf, args[0])
 		} else {
-			client.RunGetIntegrationPackages()
+			client.RunGetIntegrationPackages(conf)
 		}
 
 	},

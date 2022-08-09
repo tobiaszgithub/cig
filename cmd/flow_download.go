@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // flowDownloadCmd represents the flowDownload command
@@ -18,11 +19,15 @@ var flowDownloadCmd = &cobra.Command{
 	Long: `You can use the following subcommand to download an integration flow of designtime as zip file.
 Integration flows of configure-only packages cannot be downloaded.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if len(args) == 0 {
 			log.Fatal("Required parameter flow-id not set")
 		}
 		fileName, _ := cmd.Flags().GetString("output-file")
-		client.RunDownloadFlow(args[0], fileName)
+		client.RunDownloadFlow(conf, args[0], fileName)
 	},
 }
 

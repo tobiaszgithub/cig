@@ -10,12 +10,12 @@ import (
 	"github.com/tobiaszgithub/cig/model"
 )
 
-func RunGetIntegrationPackages() {
+func RunGetIntegrationPackages(conf config.Configuration) {
 
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// conf, err := config.NewConfiguration(tenantKey)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	resp, err := GetIntegrationPackages(conf)
 
@@ -27,11 +27,11 @@ func RunGetIntegrationPackages() {
 
 }
 
-func RunInspectIntegrationPackage(packageId string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+func RunInspectIntegrationPackage(conf config.Configuration, packageId string) {
+	// conf, err := config.NewDefaultConfiguration()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	resp, err := InspectIntegrationPackage(conf, packageId)
 	if err != nil {
@@ -41,11 +41,11 @@ func RunInspectIntegrationPackage(packageId string) {
 
 }
 
-func RunGetFlowsOfIntegrationPackage(packageName string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+func RunGetFlowsOfIntegrationPackage(conf config.Configuration, packageName string) {
+	// conf, err := config.NewDefaultConfiguration()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	resp, err := GetFlowsOfIntegrationPackage(conf, packageName)
 	if err != nil {
@@ -55,24 +55,24 @@ func RunGetFlowsOfIntegrationPackage(packageName string) {
 
 }
 
-func RunDownloadIntegrationPackage(packageName string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+func RunDownloadIntegrationPackage(conf config.Configuration, packageName string) {
+	// conf, err := config.NewDefaultConfiguration()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	err = DownloadIntegrationPackage(conf, packageName)
+	err := DownloadIntegrationPackage(conf, packageName)
 	if err != nil {
 		log.Fatal("Error in DownloadIntegrationPackage: ", err)
 	}
 
 }
 
-func RunInspectFlow(flowId string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+func RunInspectFlow(conf config.Configuration, flowId string) {
+	// conf, err := config.NewDefaultConfiguration()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	resp, err := InspectFlow(conf, flowId)
 	if err != nil {
@@ -81,12 +81,7 @@ func RunInspectFlow(flowId string) {
 	resp.Print(os.Stdout)
 }
 
-func RunDownloadFlow(flowId string, outputFile string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func RunDownloadFlow(conf config.Configuration, flowId string, outputFile string) {
 	if outputFile == "" {
 		outputFile = flowId + ".zip"
 	}
@@ -100,11 +95,7 @@ func RunDownloadFlow(flowId string, outputFile string) {
 
 }
 
-func RunGetFlowConfigs(flowName string, fileName string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+func RunGetFlowConfigs(conf config.Configuration, flowName string, fileName string) {
 
 	resp, err := GetFlowConfigs(conf, flowName)
 	if err != nil {
@@ -129,11 +120,7 @@ func RunGetFlowConfigs(flowName string, fileName string) {
 	}
 }
 
-func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrinter) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+func RunUpdateFlowConfigs(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) {
 
 	resp, err := UpdateFlowConfigsBatch(conf, flowName, configs)
 	if err != nil {
@@ -145,12 +132,7 @@ func RunUpdateFlowConfigs(flowName string, configs []model.FlowConfigurationPrin
 
 }
 
-func RunCreateFlow(name string, id string, packageid string, fileName string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func RunCreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) {
 	resp, err := CreateFlow(conf, name, id, packageid, fileName)
 	if err != nil {
 		log.Fatal("Error in CreateFlow:\n", err)
@@ -160,11 +142,7 @@ func RunCreateFlow(name string, id string, packageid string, fileName string) {
 
 }
 
-func RunUpdateFlow(name string, id string, version string, fileName string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+func RunUpdateFlow(conf config.Configuration, name string, id string, version string, fileName string) {
 
 	resp, err := UpdateFlow(conf, name, id, version, fileName)
 	if err != nil {
@@ -175,11 +153,7 @@ func RunUpdateFlow(name string, id string, version string, fileName string) {
 
 }
 
-func RunDeployFlow(id string, version string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+func RunDeployFlow(conf config.Configuration, id string, version string) {
 
 	resp, err := DeployFlow(conf, id, version)
 	if err != nil {
@@ -189,23 +163,14 @@ func RunDeployFlow(id string, version string) {
 	fmt.Println(resp)
 }
 
-func RunCopyFlow(srcFlowId string, destFlowId string, destFlowName string, destPackageId string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = CopyFlow(conf, srcFlowId, destFlowId, destFlowName, destPackageId)
+func RunCopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, destFlowName string, destPackageId string) {
+	err := CopyFlow(conf, srcFlowId, destFlowId, destFlowName, destPackageId)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func RunTransportFlow(out io.Writer, srcFlowId string, destFlowId string, destTenantKey string, destFlowName string, destPackageId string) {
-	conf, err := config.NewDefaultConfiguration()
-	if err != nil {
-		log.Fatal(err)
-	}
+func RunTransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, destFlowId string, destTenantKey string, destFlowName string, destPackageId string) {
 
 	destConf, err := config.NewConfiguration(destTenantKey)
 	if err != nil {

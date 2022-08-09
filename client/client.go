@@ -190,16 +190,21 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 	packageOutPath := filepath.Join(cwd, packageName+".zip")
 	//log.Println(packageOutPath)
 
-	out, err := os.Create(packageOutPath)
+	n, err := saveBodyContent(packageOutPath, response.Body)
 	if err != nil {
 		return err
 	}
-	defer out.Close()
 
-	n, err := io.Copy(out, response.Body)
-	if err != nil {
-		return err
-	}
+	// out, err := os.Create(packageOutPath)
+	// if err != nil {
+	// 	return err
+	// }
+	// defer out.Close()
+
+	// n, err := io.Copy(out, response.Body)
+	// if err != nil {
+	// 	return err
+	// }
 	log.Println(packageOutPath + " created")
 	log.Println("number of bytes: ", n)
 

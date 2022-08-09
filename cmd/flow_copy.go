@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // flowCopyCmd represents the flowCopy command
@@ -18,7 +19,10 @@ var flowCopyCmd = &cobra.Command{
 	Long: `You can use the following subcommand to copy
 an integration flow of designtime. `,
 	Run: func(cmd *cobra.Command, args []string) {
-		//fmt.Println("flowCopy called")
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if len(args) == 0 {
 			log.Fatal("Required parameter source-flow-id not set")
 		}
@@ -28,7 +32,7 @@ an integration flow of designtime. `,
 		destFlowName, _ := cmd.Flags().GetString("dest-flow-name")
 		destPackageId, _ := cmd.Flags().GetString("dest-package-id")
 
-		client.RunCopyFlow(args[0], args[1], destFlowName, destPackageId)
+		client.RunCopyFlow(conf, args[0], args[1], destFlowName, destPackageId)
 
 	},
 }
