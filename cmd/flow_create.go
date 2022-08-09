@@ -5,10 +5,11 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // createCmd represents the create command
@@ -18,13 +19,17 @@ var flowCreateCmd = &cobra.Command{
 	Long: `You can use the following subcommand to create or upload
 an integration flow of designtime`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("flowCreate called")
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		name, _ := cmd.Flags().GetString("name")
 		id, _ := cmd.Flags().GetString("id")
 		packageid, _ := cmd.Flags().GetString("package-id")
 		fileName, _ := cmd.Flags().GetString("content-file-name")
 
-		client.RunCreateFlow(name, id, packageid, fileName)
+		client.RunCreateFlow(conf, name, id, packageid, fileName)
 	},
 }
 

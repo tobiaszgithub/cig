@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // flowTransportCmd represents the flowTransport command
@@ -19,7 +20,11 @@ var flowTransportCmd = &cobra.Command{
 	Long: `You can use the following subcommand to transport
 an integration flow of designtime between systems. `,
 	Run: func(cmd *cobra.Command, args []string) {
-		//fmt.Println("flowTransport called")
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		if len(args) == 0 {
 			log.Fatal("Required parameter source-flow-id not set")
 		}
@@ -30,10 +35,11 @@ an integration flow of designtime between systems. `,
 		if destTenantKey == "" {
 			log.Fatal("Required flag dest-tenant-key not set")
 		}
+
 		destFlowName, _ := cmd.Flags().GetString("dest-flow-name")
 		destPackageId, _ := cmd.Flags().GetString("dest-package-id")
 
-		client.RunTransportFlow(os.Stdout, args[0], args[1], destTenantKey, destFlowName, destPackageId)
+		client.RunTransportFlow(os.Stdout, conf, args[0], args[1], destTenantKey, destFlowName, destPackageId)
 	},
 }
 
@@ -49,7 +55,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// flowTransportCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	flowTransportCmd.Flags().StringP("dest-tenant-key", "t", "", "Destination tenant key from configuration file")
+	flowTransportCmd.Flags().StringP("dest-tenant-key", "d", "", "Destination tenant key from configuration file")
 	flowTransportCmd.Flags().StringP("dest-flow-name", "n", "", "Destination Integration Flow name")
 	flowTransportCmd.Flags().StringP("dest-package-id", "p", "", "Destination Integration Flow package id")
 }

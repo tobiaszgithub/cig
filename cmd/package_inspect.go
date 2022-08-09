@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // packageInspectCmd represents the packageInspect command
@@ -17,11 +18,14 @@ var packageInspectCmd = &cobra.Command{
 	Short: "Get integration package by ID",
 	Long:  `You can use the following subcommand to get an integration packages of designtime by Id.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//fmt.Println("packageInspect called")
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if len(args) == 0 {
 			log.Fatal("Required parameter package-id not set")
 		}
-		client.RunInspectIntegrationPackage(args[0])
+		client.RunInspectIntegrationPackage(conf, args[0])
 	},
 }
 

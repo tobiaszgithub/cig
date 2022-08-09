@@ -5,8 +5,11 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // packageCmd represents the package command
@@ -16,14 +19,15 @@ var packageCmd = &cobra.Command{
 	Short:   "Command related to the processing of integration packages",
 	Long:    `Command related to the processing of integration packages`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//	fmt.Println("package called")
-		//cmd.packageLsCmd()
-		//client.RunGetIntegrationPackages()
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		if len(args) > 0 {
-			client.RunGetFlowsOfIntegrationPackage(args[0])
+			client.RunGetFlowsOfIntegrationPackage(conf, args[0])
 		} else {
-			client.RunGetIntegrationPackages()
+			client.RunGetIntegrationPackages(conf)
 		}
 	},
 }

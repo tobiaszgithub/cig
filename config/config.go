@@ -47,7 +47,6 @@ type Authorization struct {
 func NewDefaultConfiguration() (Configuration, error) {
 
 	//conf := Configuration{}
-
 	conf, err := NewConfiguration("")
 	if err != nil {
 		return conf, err

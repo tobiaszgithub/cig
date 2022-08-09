@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // flowInspectCmd represents the flowInspect command
@@ -17,10 +18,15 @@ var flowInspectCmd = &cobra.Command{
 	Short: "Get integration flow by id and version",
 	Long:  `You can use the following subcommand to get an integration flow of designtime by Id and version.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		if len(args) == 0 {
 			log.Fatal("Required parameter flow-id not set")
 		}
-		client.RunInspectFlow(args[0])
+		client.RunInspectFlow(conf, args[0])
 	},
 }
 

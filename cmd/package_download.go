@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 )
 
 // packageDownloadCmd represents the packageDownload command
@@ -18,11 +19,15 @@ var packageDownloadCmd = &cobra.Command{
 	Long: `You can use the following subcommand to download an integration package of designtime as .zip file.
 Download fails if the package contains one or more artifacts in draft state.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//fmt.Println("packageDownload called")
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		if len(args) == 0 {
 			log.Fatal("Required parameter package-id not set")
 		}
-		client.RunDownloadIntegrationPackage(args[0])
+		client.RunDownloadIntegrationPackage(conf, args[0])
 
 	},
 }

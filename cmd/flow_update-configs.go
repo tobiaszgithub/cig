@@ -12,6 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
+	"github.com/tobiaszgithub/cig/config"
 	"github.com/tobiaszgithub/cig/model"
 )
 
@@ -22,6 +23,10 @@ var updateConfigsCmd = &cobra.Command{
 	Long: `You can use the following command to update the value
 for a configuration parameters of a designtime integration flow.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		conf, err := config.NewConfiguration(TenantKey)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if len(args) == 0 {
 			log.Fatal("Required parameter flow-id not set")
 		}
@@ -47,7 +52,7 @@ for a configuration parameters of a designtime integration flow.`,
 
 		allConfigParams = append(decodedFile.D.Results, configParams...)
 
-		client.RunUpdateFlowConfigs(args[0], allConfigParams)
+		client.RunUpdateFlowConfigs(conf, args[0], allConfigParams)
 
 	},
 }
