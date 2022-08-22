@@ -16,7 +16,7 @@ import (
 var flowUpdateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Update an integration flow",
-	Long:  `You can use the following request to update an integration flow from designtime`,
+	Long:  `You can use the following command to update an integration flow from designtime`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf, err := config.NewConfiguration(TenantKey)
 		if err != nil {
