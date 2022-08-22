@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/tobiaszgithub/cig/config"
 )
@@ -25,6 +26,14 @@ func ResourceUpdate(out io.Writer, conf config.Configuration, flowId string, flo
 	if err != nil {
 		return err
 	}
+
+	if resourceName == "" {
+		//fileBase := filepath.Base(resourceFileName)
+		//resourceName = fileBase[0 : len(fileBase)-len(filepath.Ext(fileBase))]
+		//log.Println("resourceName: ", resourceName)
+		resourceName = filepath.Base(resourceFileName)
+	}
+	log.Println("resourceName: ", resourceName)
 
 	var encodedContent string
 	contentData, err := ioutil.ReadFile(resourceFileName)
