@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -20,6 +21,14 @@ import (
 	"github.com/tobiaszgithub/cig/config"
 	"github.com/tobiaszgithub/cig/model"
 	"golang.org/x/oauth2/clientcredentials"
+)
+
+var (
+	ErrConnection      = errors.New("connection error")
+	ErrNotFound        = errors.New("not found")
+	ErrInvalidResponse = errors.New("invalid server response")
+	ErrInvalid         = errors.New("invalid data")
+	ErrNotNumber       = errors.New("not a number")
 )
 
 func GetClient(conf config.Configuration) *http.Client {
@@ -209,40 +218,6 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 	log.Println("number of bytes: ", n)
 
 	return nil
-}
-
-func InspectFlow(conf config.Configuration, flowId string) (*model.FlowByIdResponse, error) {
-	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')"
-	log.Println("GET ", flowURL)
-	request, err := http.NewRequest("GET", flowURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	request.Header.Set("Accept", "application/json")
-
-	httpClient := GetClient(conf)
-
-	response, err := httpClient.Do(request)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-
-	var decodedRes model.FlowByIdResponse
-
-	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
-	if !statusOk {
-		body, _ := ioutil.ReadAll(response.Body)
-		return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
-	}
-
-	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
-		return nil, err
-	}
-
-	return &decodedRes, err
 }
 
 func DownloadFlow(conf config.Configuration, flowId string, outputFile string) (string, error) {
