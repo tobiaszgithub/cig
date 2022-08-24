@@ -11,9 +11,11 @@ Available Commands:
 - generate-config - Generate config file
 - help -            Help about any command
 - package -         Command related to the processing of integration packages
+- resource -        Command related to the processing of resources of an integration flow
 
 Flags:<br>
-&ensp;-h, --help&ensp;&ensp;help for cig
+&ensp;-h, --help&ensp;&ensp;help for cig<br>
+&ensp;-t, --tenant-key&ensp;&ensp;string&ensp;&ensp;Tenant key from configuration file
 
 Use "cig [command] --help" for more information about a command.
 
@@ -38,6 +40,11 @@ Available Commands:
 Flags:<br>
 &ensp;-h, --help&ensp;&ensp;help for flow
 
+Global Flags:<br>
+&ensp;-t, --tenant-key&ensp;&ensp;string&ensp;&ensp;Tenant key from configuration file
+
+Use "cig flow [command] --help" for more information about a command.
+
 ## cig generate-config
 Generate configuration file. This file is nessesary for the operation
 of the cig tool. Configuration file should be placed in working directory or userhome/.cig/ directory
@@ -48,6 +55,9 @@ Usage:<br>
 Flags:<br>
 &ensp;-h, --help&ensp;&ensp;help for generate-config<br>
 &ensp;-o, --output-file&ensp;&ensp;string&ensp;&ensp;The output file with empty configuration parameters that will be created (default "config.json")
+
+Global Flags:<br>
+&ensp;-t, --tenant-key&ensp;&ensp;string&ensp;&ensp;Tenant key from configuration file
 
 ## cig package
 Command related to the processing of integration packages
@@ -66,3 +76,23 @@ Available Commands:
 
 Flags:<br>
 &ensp;-h, --help&ensp;&ensp;help for package
+
+Global Flags:<br>
+&ensp;-t, --tenant-key&ensp;&ensp;string&ensp;&ensp;Tenant key from configuration file
+
+## cig resource
+Command related to the processing of resources of an integration flow
+
+Usage:<br>
+&ensp;cig resource [command]
+
+Available Commands:
+- update -      Update a resource of an integration flow
+
+Flags:<br>
+&ensp;-h, --help&ensp;&ensp;help for resource
+
+Global Flags:<br>
+&ensp;-t, --tenant-key&ensp;&ensp;string&ensp;&ensp;Tenant key from configuration file
+
+Use "cig resource [command] --help" for more information about a command.
