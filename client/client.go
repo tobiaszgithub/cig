@@ -211,8 +211,8 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 	return nil
 }
 
-func InspectFlow(conf config.Configuration, flowId string) (*model.FlowByIdResponse, error) {
-	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')"
+func InspectFlow(conf config.Configuration, flowId string, version string) (*model.FlowByIdResponse, error) {
+	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='" + version + "')"
 	log.Println("GET ", flowURL)
 	request, err := http.NewRequest("GET", flowURL, nil)
 	if err != nil {
@@ -245,8 +245,8 @@ func InspectFlow(conf config.Configuration, flowId string) (*model.FlowByIdRespo
 	return &decodedRes, err
 }
 
-func DownloadFlow(conf config.Configuration, flowId string, outputFile string) (string, error) {
-	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')/$value"
+func DownloadFlow(conf config.Configuration, flowId string, version string, outputFile string) (string, error) {
+	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='" + version + "')/$value"
 	log.Println("GET ", flowURL)
 	request, err := http.NewRequest("GET", flowURL, nil)
 	if err != nil {
@@ -690,8 +690,8 @@ func DeployFlow(conf config.Configuration, id string, version string) (string, e
 }
 
 func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, destFlowName string, destPackageId string) error {
-
-	srcFlow, err := InspectFlow(conf, srcFlowId)
+	version := "active"
+	srcFlow, err := InspectFlow(conf, srcFlowId, version)
 	if err != nil {
 		return err
 	}
@@ -702,7 +702,7 @@ func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, de
 	}
 	defer os.Remove(tmpFileName)
 
-	resp, err := DownloadFlow(conf, srcFlowId, tmpFileName)
+	resp, err := DownloadFlow(conf, srcFlowId, version, tmpFileName)
 	if err != nil {
 		return err
 	}
@@ -749,8 +749,8 @@ func getTmpFileName() (string, error) {
 }
 
 func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, destConf config.Configuration, destFlowId string, destFlowName string, destPackageId string) error {
-
-	srcFlow, err := InspectFlow(conf, srcFlowId)
+	version := "active"
+	srcFlow, err := InspectFlow(conf, srcFlowId, version)
 	if err != nil {
 		return err
 	}
@@ -761,7 +761,7 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 	}
 	defer os.Remove(tmpFileName)
 
-	resp, err := DownloadFlow(conf, srcFlowId, tmpFileName)
+	resp, err := DownloadFlow(conf, srcFlowId, version, tmpFileName)
 	if err != nil {
 		return err
 	}
@@ -779,7 +779,7 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 		destPackageId = srcFlow.D.PackageID
 	}
 
-	destFlow, _ := InspectFlow(destConf, destFlowId)
+	destFlow, _ := InspectFlow(destConf, destFlowId, version)
 
 	var createResp *model.FlowByIdResponse
 	var updateResp string
