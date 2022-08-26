@@ -463,7 +463,7 @@ func getCsrfTokenAndCookies(conf config.Configuration) (string, []*http.Cookie, 
 
 	tokenResponse, err := tokenHttpClient.Do(tokenRequest)
 	if err != nil {
-		return "", nil, err
+		return "", nil, fmt.Errorf("%w: %s", ErrConnection, err)
 	}
 	defer tokenResponse.Body.Close()
 	csrfToken := tokenResponse.Header.Get("X-CSRF-Token")

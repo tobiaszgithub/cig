@@ -140,16 +140,6 @@ func RunUpdateFlow(conf config.Configuration, name string, id string, version st
 
 }
 
-func RunDeployFlow(conf config.Configuration, id string, version string) {
-
-	resp, err := DeployFlow(conf, id, version)
-	if err != nil {
-		log.Fatal("Error in UpdateFlow:\n", err)
-	}
-
-	fmt.Println(resp)
-}
-
 func RunCopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, destFlowName string, destPackageId string) {
 	err := CopyFlow(conf, srcFlowId, destFlowId, destFlowName, destPackageId)
 	if err != nil {
