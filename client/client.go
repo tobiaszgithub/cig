@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -20,6 +21,14 @@ import (
 	"github.com/tobiaszgithub/cig/config"
 	"github.com/tobiaszgithub/cig/model"
 	"golang.org/x/oauth2/clientcredentials"
+)
+
+var (
+	ErrConnection      = errors.New("connection error")
+	ErrNotFound        = errors.New("not found")
+	ErrInvalidResponse = errors.New("invalid server response")
+	ErrInvalid         = errors.New("invalid data")
+	ErrNotNumber       = errors.New("not a number")
 )
 
 func GetClient(conf config.Configuration) *http.Client {
@@ -211,42 +220,8 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 	return nil
 }
 
-func InspectFlow(conf config.Configuration, flowId string, version string) (*model.FlowByIdResponse, error) {
-	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='" + version + "')"
-	log.Println("GET ", flowURL)
-	request, err := http.NewRequest("GET", flowURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	request.Header.Set("Accept", "application/json")
-
-	httpClient := GetClient(conf)
-
-	response, err := httpClient.Do(request)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-
-	var decodedRes model.FlowByIdResponse
-
-	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
-	if !statusOk {
-		body, _ := ioutil.ReadAll(response.Body)
-		return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
-	}
-
-	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
-		return nil, err
-	}
-
-	return &decodedRes, err
-}
-
 func DownloadFlow(conf config.Configuration, flowId string, version string, outputFile string) (string, error) {
-	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='" + version + "')/$value"
+	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')/$value"
 	log.Println("GET ", flowURL)
 	request, err := http.NewRequest("GET", flowURL, nil)
 	if err != nil {
@@ -488,7 +463,7 @@ func getCsrfTokenAndCookies(conf config.Configuration) (string, []*http.Cookie, 
 
 	tokenResponse, err := tokenHttpClient.Do(tokenRequest)
 	if err != nil {
-		return "", nil, err
+		return "", nil, fmt.Errorf("%w: %s", ErrConnection, err)
 	}
 	defer tokenResponse.Body.Close()
 	csrfToken := tokenResponse.Header.Get("X-CSRF-Token")
@@ -647,45 +622,6 @@ func UpdateFlow(conf config.Configuration, name string, id string, version strin
 		return "", fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
 	}
 	bodyStr := string(body) + "\n"
-	return bodyStr, nil
-}
-
-func DeployFlow(conf config.Configuration, id string, version string) (string, error) {
-
-	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
-	if err != nil {
-		return "", err
-	}
-
-	deployFlowURL := conf.ApiURL + "/DeployIntegrationDesigntimeArtifact?Id='" + id + "'&Version='" + version + "'"
-	log.Println("POST ", deployFlowURL)
-
-	request, err := http.NewRequest("POST", deployFlowURL, nil)
-	if err != nil {
-		return "", err
-	}
-
-	request.Header.Set("Accept", "application/json")
-
-	request.Header.Set("X-CSRF-Token", csrfToken)
-	for i := range cookies {
-		request.AddCookie(cookies[i])
-	}
-
-	httpClient := GetClient(conf)
-
-	response, err := httpClient.Do(request)
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-
-	body, _ := ioutil.ReadAll(response.Body)
-	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
-	if !statusOk {
-		return "", fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
-	}
-	bodyStr := "Task ID:\n" + string(body) + "\n"
 	return bodyStr, nil
 }
 

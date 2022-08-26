@@ -68,19 +68,6 @@ func RunDownloadIntegrationPackage(conf config.Configuration, packageName string
 
 }
 
-func RunInspectFlow(conf config.Configuration, flowId string, version string) {
-	// conf, err := config.NewDefaultConfiguration()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	resp, err := InspectFlow(conf, flowId, version)
-	if err != nil {
-		log.Fatal("Error in InspectFlow: ", err)
-	}
-	resp.Print(os.Stdout)
-}
-
 func RunDownloadFlow(conf config.Configuration, flowId string, version string, outputFile string) {
 	if outputFile == "" {
 		outputFile = flowId + ".zip"
@@ -151,16 +138,6 @@ func RunUpdateFlow(conf config.Configuration, name string, id string, version st
 
 	fmt.Println(resp)
 
-}
-
-func RunDeployFlow(conf config.Configuration, id string, version string) {
-
-	resp, err := DeployFlow(conf, id, version)
-	if err != nil {
-		log.Fatal("Error in UpdateFlow:\n", err)
-	}
-
-	fmt.Println(resp)
 }
 
 func RunCopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, destFlowName string, destPackageId string) {
