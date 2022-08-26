@@ -12,16 +12,16 @@ import (
 	"github.com/tobiaszgithub/cig/model"
 )
 
-func RunInspectFlow(conf config.Configuration, flowId string) {
+func RunInspectFlow(conf config.Configuration, flowId string, version string) {
 
-	resp, err := InspectFlow(conf, flowId)
+	resp, err := InspectFlow(conf, flowId, version)
 	if err != nil {
 		log.Fatal("Error in InspectFlow: ", err)
 	}
 	resp.Print(os.Stdout)
 }
 
-func InspectFlow(conf config.Configuration, flowId string) (*model.FlowByIdResponse, error) {
+func InspectFlow(conf config.Configuration, flowId string, version string) (*model.FlowByIdResponse, error) {
 	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')"
 	log.Println("GET ", flowURL)
 	request, err := http.NewRequest("GET", flowURL, nil)

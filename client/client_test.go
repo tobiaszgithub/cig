@@ -83,7 +83,8 @@ func TestInspectFlow(t *testing.T) {
 			}
 
 			conf.ApiURL = url
-			resp, err := client.InspectFlow(conf, tc.flowId)
+			version := "active"
+			resp, err := client.InspectFlow(conf, tc.flowId, version)
 			if tc.expError != nil {
 				if err == nil {
 					t.Fatalf("Expected error %q, got no error.", tc.expError)

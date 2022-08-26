@@ -27,7 +27,8 @@ Integration flows of configure-only packages cannot be downloaded.`,
 			log.Fatal("Required parameter flow-id not set")
 		}
 		fileName, _ := cmd.Flags().GetString("output-file")
-		client.RunDownloadFlow(conf, args[0], fileName)
+		version, _ := cmd.Flags().GetString("version")
+		client.RunDownloadFlow(conf, args[0], version, fileName)
 	},
 }
 
@@ -44,4 +45,5 @@ func init() {
 	// is called directly, e.g.:
 	// flowDownloadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	flowDownloadCmd.Flags().StringP("output-file", "o", "", "The output file with integration flow [default value flowId.zip]")
+	flowDownloadCmd.Flags().StringP("version", "v", "active", "Integration Flow version")
 }

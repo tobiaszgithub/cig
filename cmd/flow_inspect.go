@@ -26,13 +26,14 @@ var flowInspectCmd = &cobra.Command{
 		if len(args) == 0 {
 			log.Fatal("Required parameter flow-id not set")
 		}
-		client.RunInspectFlow(conf, args[0])
+		version, _ := cmd.Flags().GetString("version")
+		client.RunInspectFlow(conf, args[0], version)
 	},
 }
 
 func init() {
 	flowCmd.AddCommand(flowInspectCmd)
-
+	flowInspectCmd.Flags().StringP("version", "v", "active", "Integration Flow version")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

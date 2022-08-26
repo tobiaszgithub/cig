@@ -68,12 +68,12 @@ func RunDownloadIntegrationPackage(conf config.Configuration, packageName string
 
 }
 
-func RunDownloadFlow(conf config.Configuration, flowId string, outputFile string) {
+func RunDownloadFlow(conf config.Configuration, flowId string, version string, outputFile string) {
 	if outputFile == "" {
 		outputFile = flowId + ".zip"
 	}
 
-	resp, err := DownloadFlow(conf, flowId, outputFile)
+	resp, err := DownloadFlow(conf, flowId, version, outputFile)
 	if err != nil {
 		log.Fatal("Error in DownloadFlow: ", err)
 	}
