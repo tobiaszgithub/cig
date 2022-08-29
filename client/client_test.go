@@ -1,10 +1,12 @@
 package client_test
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/tobiaszgithub/cig/client"
@@ -186,8 +188,10 @@ func TestDeployFlow(t *testing.T) {
 				cleanup()
 			}
 
+			var out bytes.Buffer
+
 			conf.ApiURL = url
-			resp, err := client.DeployFlow(conf, tc.flowId, "active")
+			err := client.DeployFlow(&out, conf, tc.flowId, "active")
 			if tc.expError != nil {
 				if err == nil {
 					t.Fatalf("Expected error %q, got no error.", tc.expError)
@@ -200,8 +204,11 @@ func TestDeployFlow(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Expected no error, got %q.", err)
 			}
-			if resp == "" {
-				t.Errorf("flow ID should not be initial")
+			if out.String() == "" {
+				t.Errorf("response body should not be initial")
+			}
+			if strings.Contains(out.String(), `327626af-8e45-4c56-4791-4a4858573396`) == false {
+				t.Errorf("response body should contain task id")
 			}
 			// if resp.D.ID != tc.flowId {
 			// 	t.Errorf("Expected flowId: %s, got: %s", tc.flowId, resp.D.ID)
