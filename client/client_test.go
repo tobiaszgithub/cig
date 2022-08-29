@@ -109,25 +109,6 @@ func TestInspectFlow(t *testing.T) {
 	}
 }
 
-func getTestConfiguration() config.Configuration {
-	conf := config.Configuration{}
-	conf.ApiURL = ""
-	conf.Key = "test"
-	conf.Authorization.Type = "basic"
-	conf.Authorization.Username = ""
-	conf.Authorization.Password = ""
-
-	return conf
-}
-
-func mockServer(h http.HandlerFunc) (string, func()) {
-	ts := httptest.NewServer(h)
-
-	return ts.URL, func() {
-		ts.Close()
-	}
-}
-
 func TestDeployFlow(t *testing.T) {
 	testResp := map[string]struct {
 		Status int
@@ -214,5 +195,134 @@ func TestDeployFlow(t *testing.T) {
 			// 	t.Errorf("Expected flowId: %s, got: %s", tc.flowId, resp.D.ID)
 			// }
 		})
+	}
+}
+
+func TestGetFlowConfigs(t *testing.T) {
+
+	testResp := map[string]struct {
+		Status int
+		Body   string
+	}{
+		"resultOK": {
+			Status: http.StatusOK,
+			Body: `{
+        "d": {
+                "results": [
+                        {
+                                "ParameterKey": "APIKey",
+                                "ParameterValue": "2yhr5KY7wl2cKhqGHZjAMBQAKr6GFp1X",
+                                "DataType": "xsd:string"
+                        },
+                        {
+                                "ParameterKey": "ExProp1Value",
+                                "ParameterValue": "testValue7",
+                                "DataType": "xsd:string"
+                        },
+                        {
+                                "ParameterKey": "bodySize",
+                                "ParameterValue": "105",
+                                "DataType": "xsd:integer"
+                        }
+                ]
+        }
+}`,
+		},
+		"notFound": {
+			Status: http.StatusNotFound,
+			Body: `{
+        "d": {
+                "results": null
+        }
+}`,
+		},
+	}
+
+	conf := getTestConfiguration()
+
+	testCases := []struct {
+		name     string
+		flowId   string
+		expError error
+		resp     struct {
+			Status int
+			Body   string
+		}
+		closeServer bool
+	}{
+		{
+			name:     "resultOK",
+			flowId:   "PurchaseOrder",
+			expError: nil,
+			resp:     testResp["resultOK"],
+		},
+		{
+			name:        "notFound",
+			flowId:      "notExistingFlowId",
+			expError:    client.ErrNotFound,
+			resp:        testResp["notFound"],
+			closeServer: false,
+		},
+		{
+			name:        "InvalidURL",
+			flowId:      "PurchaseOrder",
+			expError:    client.ErrConnection,
+			resp:        testResp["notFound"],
+			closeServer: true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			url, cleanup := mockServer(
+				func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(tc.resp.Status)
+					fmt.Fprintln(w, tc.resp.Body)
+				})
+			defer cleanup()
+			if tc.closeServer {
+				cleanup()
+			}
+
+			conf.ApiURL = url
+			version := "active"
+			resp, err := client.GetFlowConfigs(conf, tc.flowId, version)
+			if tc.expError != nil {
+				if err == nil {
+					t.Fatalf("Expected error %q, got no error.", tc.expError)
+				}
+				if !errors.Is(err, tc.expError) {
+					t.Errorf("Expected error %q, got %q.", tc.expError, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("Expected no error, got %q.", err)
+			}
+			if len(resp.D.Results) != 3 {
+				t.Errorf("Expected 3 parameters got %d", len(resp.D.Results))
+			}
+			if resp.D.Results[0].ParameterKey != "APIKey" {
+				t.Errorf("Expected ParameterKey: %s, got: %s", "APIKey", resp.D.Results[0].ParameterKey)
+			}
+		})
+	}
+}
+
+func getTestConfiguration() config.Configuration {
+	conf := config.Configuration{}
+	conf.ApiURL = ""
+	conf.Key = "test"
+	conf.Authorization.Type = "basic"
+	conf.Authorization.Username = ""
+	conf.Authorization.Password = ""
+
+	return conf
+}
+
+func mockServer(h http.HandlerFunc) (string, func()) {
+	ts := httptest.NewServer(h)
+
+	return ts.URL, func() {
+		ts.Close()
 	}
 }

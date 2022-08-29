@@ -82,31 +82,6 @@ func RunDownloadFlow(conf config.Configuration, flowId string, version string, o
 
 }
 
-func RunGetFlowConfigs(conf config.Configuration, flowName string, fileName string) {
-
-	resp, err := GetFlowConfigs(conf, flowName)
-	if err != nil {
-		log.Fatal("Error in GetFlowConfigs: ", err)
-	}
-
-	resp.Print(os.Stdout)
-
-	var outputFile *os.File
-
-	if fileName != "" {
-		log.Println("File name: ", fileName)
-		outputFile, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
-		if err != nil {
-			log.Fatal("Error creating file: ", err)
-		}
-		defer outputFile.Close()
-	}
-
-	if outputFile != nil {
-		resp.Print(outputFile)
-	}
-}
-
 func RunUpdateFlowConfigs(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) {
 
 	resp, err := UpdateFlowConfigsBatch(conf, flowName, configs)

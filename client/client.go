@@ -282,34 +282,6 @@ func saveBodyContent(fileName string, src io.Reader) (writtenBytes int64, err er
 	//body, _ := ioutil.ReadAll(response.Body)
 }
 
-func GetFlowConfigs(conf config.Configuration, flowName string) (*model.FlowConfigurations, error) {
-	configsFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/Configurations"
-	log.Println("GET ", configsFlowURL)
-	request, err := http.NewRequest("GET", configsFlowURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	request.Header.Set("Accept", "application/json")
-
-	httpClient := GetClient(conf)
-
-	response, err := httpClient.Do(request)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-
-	var decodedRes model.FlowConfigurations
-
-	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
-		return nil, err
-	}
-
-	return &decodedRes, err
-}
-
 func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) (string, error) {
 
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)

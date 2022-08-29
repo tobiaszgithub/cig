@@ -40,8 +40,6 @@ func InspectFlow(conf config.Configuration, flowId string, version string) (*mod
 
 	defer response.Body.Close()
 
-	var decodedRes model.FlowByIdResponse
-
 	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
 	if !statusOk {
 		body, err := ioutil.ReadAll(response.Body)
@@ -56,6 +54,7 @@ func InspectFlow(conf config.Configuration, flowId string, version string) (*mod
 		//return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, body)
 	}
 
+	var decodedRes model.FlowByIdResponse
 	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
 		return nil, err
 	}

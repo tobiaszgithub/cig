@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
@@ -28,8 +29,8 @@ parameters (key/value pairs) of a designtime integration artifact by Id and vers
 			log.Fatal("Required parameter flow-id not set")
 		}
 		fileName, _ := cmd.Flags().GetString("output-file")
-
-		client.RunGetFlowConfigs(conf, args[0], fileName)
+		version, _ := cmd.Flags().GetString("version")
+		client.RunGetFlowConfigs(os.Stdout, conf, args[0], fileName, version)
 	},
 }
 
@@ -46,4 +47,5 @@ func init() {
 	// is called directly, e.g.:
 	// flowConfigurationsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	flowConfigurationsCmd.Flags().StringP("output-file", "o", "", "The output file with configuration parameters that will be created, utf-8 file has format like output from describe-configs")
+	flowConfigurationsCmd.Flags().StringP("version", "v", "active", "Integration Flow version")
 }
