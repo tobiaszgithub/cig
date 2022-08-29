@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
@@ -27,7 +28,7 @@ var flowDeployCmd = &cobra.Command{
 			log.Fatal("Required parameter flow-id not set")
 		}
 		version, _ := cmd.Flags().GetString("version")
-		client.RunDeployFlow(conf, args[0], version)
+		client.RunDeployFlow(os.Stdout, conf, args[0], version)
 	},
 }
 

@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -9,21 +10,19 @@ import (
 	"github.com/tobiaszgithub/cig/config"
 )
 
-func RunDeployFlow(conf config.Configuration, id string, version string) {
+func RunDeployFlow(out io.Writer, conf config.Configuration, id string, version string) {
 
-	resp, err := DeployFlow(conf, id, version)
+	err := DeployFlow(out, conf, id, version)
 	if err != nil {
 		log.Fatal("Error in UpdateFlow:\n", err)
 	}
-
-	fmt.Println(resp)
 }
 
-func DeployFlow(conf config.Configuration, id string, version string) (string, error) {
+func DeployFlow(out io.Writer, conf config.Configuration, id string, version string) error {
 
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	deployFlowURL := conf.ApiURL + "/DeployIntegrationDesigntimeArtifact?Id='" + id + "'&Version='" + version + "'"
@@ -31,7 +30,7 @@ func DeployFlow(conf config.Configuration, id string, version string) (string, e
 
 	request, err := http.NewRequest("POST", deployFlowURL, nil)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	request.Header.Set("Accept", "application/json")
@@ -46,13 +45,13 @@ func DeployFlow(conf config.Configuration, id string, version string) (string, e
 	response, err := httpClient.Do(request)
 
 	if err != nil {
-		return "", fmt.Errorf("%w: %s", ErrConnection, err)
+		return fmt.Errorf("%w: %s", ErrConnection, err)
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", fmt.Errorf("cannot read body: %w", err)
+		return fmt.Errorf("cannot read body: %w", err)
 	}
 	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
 	if !statusOk {
@@ -60,9 +59,10 @@ func DeployFlow(conf config.Configuration, id string, version string) (string, e
 		if response.StatusCode == http.StatusNotFound {
 			err = ErrNotFound
 		}
-		return "", fmt.Errorf("%w: %s", err, body)
+		return fmt.Errorf("%w: %s", err, body)
 		//return "", fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
 	}
 	bodyStr := "Task ID:\n" + string(body) + "\n"
-	return bodyStr, nil
+	fmt.Fprintf(out, "%s", bodyStr)
+	return nil
 }
