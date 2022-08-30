@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,7 +16,19 @@ import (
 )
 
 func RunCreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) {
-	resp, err := CreateFlow(conf, name, id, packageid, fileName)
+
+	var fileContent *os.File
+	if fileName != "" {
+		fileContent, err := os.Open(fileName)
+		if err != nil {
+			log.Fatal("Error Openning file: ", err)
+		}
+		defer fileContent.Close()
+	} else {
+		fileContent = nil
+	}
+
+	resp, err := CreateFlow(conf, name, id, packageid, fileName, fileContent)
 	if err != nil {
 		log.Fatal("Error in CreateFlow:\n", err)
 	}
@@ -24,7 +37,7 @@ func RunCreateFlow(conf config.Configuration, name string, id string, packageid 
 
 }
 
-func CreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) (*model.FlowByIdResponse, error) {
+func CreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string, flowContent io.Reader) (*model.FlowByIdResponse, error) {
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {
 		return nil, err
@@ -42,6 +55,15 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 		// println()
 		// println(encodedContent)
 		// println()
+	}
+
+	if flowContent != nil {
+		contentData, err := io.ReadAll(flowContent)
+		if err != nil {
+			return nil, err
+		}
+		encodedContent = base64.StdEncoding.EncodeToString(contentData)
+
 	}
 
 	var requestBody map[string]string
@@ -85,7 +107,7 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %s", ErrConnection, err)
 	}
 	defer response.Body.Close()
 
@@ -93,8 +115,16 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 
 	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
 	if !statusOk {
-		body, _ := ioutil.ReadAll(response.Body)
-		return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("cannot read body: %w", err)
+		}
+		err = ErrInvalidResponse
+		if response.StatusCode == http.StatusNotFound {
+			err = ErrNotFound
+		}
+		return nil, fmt.Errorf("%w: %s", err, body)
+		//return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
 	}
 
 	var decodedRes model.FlowByIdResponse

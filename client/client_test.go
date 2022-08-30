@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -69,7 +70,8 @@ func TestInspectFlow(t *testing.T) {
 			flowId:      "PurchaseOrder",
 			expError:    client.ErrConnection,
 			resp:        testResp["notFound"],
-			closeServer: true},
+			closeServer: true,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -154,7 +156,8 @@ func TestDeployFlow(t *testing.T) {
 			flowId:      "PurchaseOrder",
 			expError:    client.ErrConnection,
 			resp:        testResp["notFound"],
-			closeServer: true},
+			closeServer: true,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -268,7 +271,8 @@ func TestGetFlowConfigs(t *testing.T) {
 			flowId:      "PurchaseOrder",
 			expError:    client.ErrConnection,
 			resp:        testResp["notFound"],
-			closeServer: true},
+			closeServer: true,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -303,6 +307,116 @@ func TestGetFlowConfigs(t *testing.T) {
 			}
 			if resp.D.Results[0].ParameterKey != "APIKey" {
 				t.Errorf("Expected ParameterKey: %s, got: %s", "APIKey", resp.D.Results[0].ParameterKey)
+			}
+		})
+	}
+}
+
+func TestCreateFlow(t *testing.T) {
+
+	testResp := map[string]struct {
+		Status int
+		Body   string
+	}{
+		"resultOne": {
+			Status: http.StatusOK,
+			Body: `{
+	"d": {
+					"__metadata": {
+									"id": "https://ec69d614trial.it-cpitrial03.cfapps.ap21.hana.ondemand.com:443/api/v1/IntegrationDesigntimeArtifacts(Id='PurchaseOrderTest',Version='1.0.0')",
+									"uri": "https://ec69d614trial.it-cpitrial03.cfapps.ap21.hana.ondemand.com:443/api/v1/IntegrationDesigntimeArtifacts(Id='PurchaseOrderTest',Version='1.0.0')",
+									"type": "com.sap.hci.api.IntegrationDesigntimeArtifact",
+									"content_type": "application/octet-stream",
+									"media_src": "https://ec69d614trial.it-cpitrial03.cfapps.ap21.hana.ondemand.com:443/api/v1/IntegrationDesigntimeArtifacts(Id='PurchaseOrderTest',Version='1.0.0')/$value",
+									"edit_media": "https://ec69d614trial.it-cpitrial03.cfapps.ap21.hana.ondemand.com:443/api/v1/IntegrationDesigntimeArtifacts(Id='PurchaseOrderTest',Version='1.0.0')/$value"
+					},
+					"Id": "PurchaseOrderTest",
+					"Version": "1.0.0",
+					"PackageId": "POscenerio",
+					"Name": "Purchase Order Test Create",
+					"Description": "",
+					"Sender": "",
+					"Receiver": ""
+	}
+}`,
+		},
+		"notFound": {
+			Status: http.StatusNotFound,
+			Body:   `{"error":{"code":"Not Found","message":{"lang":"en","value":"Package ID POsceneri1 does not exist."}}}`,
+		},
+	}
+
+	conf := getTestConfiguration()
+
+	testCases := []struct {
+		name      string
+		flowId    string
+		packageId string
+		expError  error
+		resp      struct {
+			Status int
+			Body   string
+		}
+		closeServer bool
+	}{
+		{
+			name:      "resultOne",
+			flowId:    "PurchaseOrderTest",
+			packageId: "POscenerio",
+			expError:  nil,
+			resp:      testResp["resultOne"],
+		},
+		{
+			name:        "notFound",
+			flowId:      "PurchaseOrderTest",
+			packageId:   "notexistingPackageId",
+			expError:    client.ErrNotFound,
+			resp:        testResp["notFound"],
+			closeServer: false,
+		},
+		{
+			name:        "InvalidURL",
+			flowId:      "PurchaseOrder",
+			expError:    client.ErrConnection,
+			resp:        testResp["notFound"],
+			closeServer: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			url, cleanup := mockServer(
+				func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(tc.resp.Status)
+					fmt.Fprintln(w, tc.resp.Body)
+				})
+			defer cleanup()
+			if tc.closeServer {
+				cleanup()
+			}
+
+			conf.ApiURL = url
+			//version := "active"
+			var fileContent io.Reader
+			fileContent = strings.NewReader("")
+			resp, err := client.CreateFlow(conf, tc.flowId, tc.flowId, "packageId", "", fileContent)
+			if tc.expError != nil {
+				if err == nil {
+					t.Fatalf("Expected error %q, got no error.", tc.expError)
+				}
+				if !errors.Is(err, tc.expError) {
+					t.Errorf("Expected error %q, got %q.", tc.expError, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("Expected no error, got %q.", err)
+			}
+			if resp.D.ID == "" {
+				t.Errorf("flow ID should not be initial")
+			}
+			if resp.D.ID != tc.flowId {
+				t.Errorf("Expected flowId: %s, got: %s", tc.flowId, resp.D.ID)
 			}
 		})
 	}

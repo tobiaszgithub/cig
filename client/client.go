@@ -541,7 +541,13 @@ func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, de
 		destPackageId = srcFlow.D.PackageID
 	}
 
-	createResp, err := CreateFlow(conf, destFlowName, destFlowId, destPackageId, tmpFileName)
+	tmpFileContent, err := os.Open(tmpFileName)
+	if err != nil {
+		return err
+	}
+	defer tmpFileContent.Close()
+
+	createResp, err := CreateFlow(conf, destFlowName, destFlowId, destPackageId, tmpFileName, tmpFileContent)
 	if err != nil {
 		return err
 	}
@@ -619,7 +625,16 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 			destFlowName = srcFlow.D.Name
 		}
 
-		createResp, err = CreateFlow(destConf, destFlowName, destFlowId, destPackageId, tmpFileName)
+		tmpFileContent, err := os.Open(tmpFileName)
+		if err != nil {
+			return err
+		}
+		defer tmpFileContent.Close()
+
+		createResp, err = CreateFlow(destConf, destFlowName, destFlowId, destPackageId, tmpFileName, tmpFileContent)
+		if err != nil {
+			return err
+		}
 		fmt.Fprintf(out, "Integration flow created.\n")
 		createResp.Print(out)
 	}
