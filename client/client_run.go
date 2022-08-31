@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
 
 	"github.com/tobiaszgithub/cig/config"
 	"github.com/tobiaszgithub/cig/model"
@@ -91,16 +90,6 @@ func RunUpdateFlowConfigs(conf config.Configuration, flowName string, configs []
 
 	fmt.Println(resp)
 	//resp.Print()
-
-}
-
-func RunCreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) {
-	resp, err := CreateFlow(conf, name, id, packageid, fileName)
-	if err != nil {
-		log.Fatal("Error in CreateFlow:\n", err)
-	}
-	//fmt.Println(resp)
-	resp.Print(os.Stdout)
 
 }
 

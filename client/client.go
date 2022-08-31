@@ -457,91 +457,6 @@ func getCsrfTokenAndCookies(conf config.Configuration) (string, []*http.Cookie, 
 	return csrfToken, cookies, nil
 }
 
-//CreateFlow is the function to create integration flow. Integration flow content can be empty
-func CreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) (*model.FlowByIdResponse, error) {
-	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
-	if err != nil {
-		return nil, err
-	}
-
-	var encodedContent string
-
-	if fileName != "" {
-		contentData, err := ioutil.ReadFile(fileName)
-		if err != nil {
-			return nil, err
-		}
-
-		encodedContent = base64.StdEncoding.EncodeToString(contentData)
-		// println()
-		// println(encodedContent)
-		// println()
-	}
-
-	var requestBody map[string]string
-
-	if encodedContent != "" {
-		requestBody = map[string]string{
-			"Name":            name,
-			"Id":              id,
-			"PackageId":       packageid,
-			"ArtifactContent": encodedContent,
-		}
-	} else {
-		requestBody = map[string]string{
-			"Name":      name,
-			"Id":        id,
-			"PackageId": packageid,
-		}
-	}
-
-	requestBodyJSON, err := json.Marshal(requestBody)
-	if err != nil {
-		return nil, err
-	}
-
-	createFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts"
-	log.Println("POST ", createFlowURL)
-
-	request, err := http.NewRequest("POST", createFlowURL, bytes.NewBuffer(requestBodyJSON))
-	if err != nil {
-		return nil, err
-	}
-
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("Accept", "application/json")
-	request.Header.Set("X-CSRF-Token", csrfToken)
-	for i := range cookies {
-		request.AddCookie(cookies[i])
-	}
-
-	httpClient := getClient(conf)
-
-	response, err := httpClient.Do(request)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-
-	//body, _ := ioutil.ReadAll(response.Body)
-
-	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
-	if !statusOk {
-		body, _ := ioutil.ReadAll(response.Body)
-		return nil, fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
-	}
-
-	var decodedRes model.FlowByIdResponse
-
-	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
-		return nil, err
-	}
-
-	//bodyStr := string(body) + "\n"
-	return &decodedRes, nil
-}
-
-//UpdateFlow is the function to update flow name and content
 func UpdateFlow(conf config.Configuration, name string, id string, version string, fileName string) (string, error) {
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {
@@ -640,7 +555,13 @@ func CopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, de
 		destPackageID = srcFlow.D.PackageID
 	}
 
-	createResp, err := CreateFlow(conf, destFlowName, destFlowID, destPackageID, tmpFileName)
+	tmpFileContent, err := os.Open(tmpFileName)
+	if err != nil {
+		return err
+	}
+	defer tmpFileContent.Close()
+
+	createResp, err := CreateFlow(conf, destFlowName, destFlowID, destPackageID, tmpFileName, tmpFileContent)
 	if err != nil {
 		return err
 	}
@@ -719,7 +640,16 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, d
 			destFlowName = srcFlow.D.Name
 		}
 
-		createResp, err = CreateFlow(destConf, destFlowName, destFlowID, destPackageID, tmpFileName)
+		tmpFileContent, err := os.Open(tmpFileName)
+		if err != nil {
+			return err
+		}
+		defer tmpFileContent.Close()
+
+		createResp, err = CreateFlow(destConf, destFlowName, destFlowID, destPackageID, tmpFileName, tmpFileContent)
+		if err != nil {
+			return err
+		}
 		fmt.Fprintf(out, "Integration flow created.\n")
 		createResp.Print(out)
 	}
