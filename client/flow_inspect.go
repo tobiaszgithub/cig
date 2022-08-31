@@ -30,7 +30,7 @@ func InspectFlow(conf config.Configuration, flowId string, version string) (*mod
 	}
 	request.Header.Set("Accept", "application/json")
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 

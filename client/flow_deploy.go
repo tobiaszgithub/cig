@@ -40,7 +40,7 @@ func DeployFlow(out io.Writer, conf config.Configuration, id string, version str
 		request.AddCookie(cookies[i])
 	}
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 

@@ -47,7 +47,7 @@ func GetFlowConfigs(conf config.Configuration, flowName string, version string) 
 	}
 	request.Header.Set("Accept", "application/json")
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 
