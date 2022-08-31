@@ -24,14 +24,19 @@ import (
 )
 
 var (
-	ErrConnection      = errors.New("connection error")
-	ErrNotFound        = errors.New("not found")
+	//ErrConnection - connection error
+	ErrConnection = errors.New("connection error")
+	//ErrNotFound - not found
+	ErrNotFound = errors.New("not found")
+	//ErrInvalidResponse - invalid server response
 	ErrInvalidResponse = errors.New("invalid server response")
-	ErrInvalid         = errors.New("invalid data")
-	ErrNotNumber       = errors.New("not a number")
+	//ErrInvalid - invalid data
+	ErrInvalid = errors.New("invalid data")
+	//ErrNotNumber - not a number
+	ErrNotNumber = errors.New("not a number")
 )
 
-func GetClient(conf config.Configuration) *http.Client {
+func getClient(conf config.Configuration) *http.Client {
 
 	ctx := context.Background()
 
@@ -57,6 +62,7 @@ func GetClient(conf config.Configuration) *http.Client {
 
 }
 
+//GetIntegrationPackages is the function to get list of the integration packages
 func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error) {
 	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages"
 	log.Println("GET ", integrationPackagesURL)
@@ -67,7 +73,7 @@ func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error
 	}
 	request.Header.Set("Accept", "application/json")
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 
@@ -93,8 +99,9 @@ func GetIntegrationPackages(conf config.Configuration) (*model.IPResponse, error
 
 }
 
-func InspectIntegrationPackage(conf config.Configuration, packageId string) (*model.IPByIdResponse, error) {
-	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageId + "')"
+//InspectIntegrationPackage is the function to get details of the integration package
+func InspectIntegrationPackage(conf config.Configuration, packageID string) (*model.IPByIdResponse, error) {
+	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageID + "')"
 	log.Println("GET ", integrationPackagesURL)
 
 	request, err := http.NewRequest("GET", integrationPackagesURL, nil)
@@ -103,7 +110,7 @@ func InspectIntegrationPackage(conf config.Configuration, packageId string) (*mo
 	}
 	request.Header.Set("Accept", "application/json")
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 
@@ -128,6 +135,7 @@ func InspectIntegrationPackage(conf config.Configuration, packageId string) (*mo
 	return &decodedRes, err
 }
 
+//GetFlowsOfIntegrationPackage is the function to get list of integration flow of the integration package
 func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string) (*model.FlowsOfIPResponse, error) {
 	flowsOfIntegrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')/IntegrationDesigntimeArtifacts"
 	log.Println("GET ", flowsOfIntegrationPackagesURL)
@@ -138,7 +146,7 @@ func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string)
 	}
 	request.Header.Set("Accept", "application/json")
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 
@@ -164,6 +172,8 @@ func GetFlowsOfIntegrationPackage(conf config.Configuration, packageName string)
 
 }
 
+//DownloadIntegrationPackage is the function to download all content of the integration package. The objects
+//in the integration package have to be in final state
 func DownloadIntegrationPackage(conf config.Configuration, packageName string) error {
 	integrationPackagesURL := conf.ApiURL + "/IntegrationPackages('" + packageName + "')/$value"
 	log.Println("GET ", integrationPackagesURL)
@@ -173,7 +183,7 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 	}
 	request.Header.Set("Accept", "application/json")
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 	if err != nil {
@@ -220,8 +230,9 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 	return nil
 }
 
-func DownloadFlow(conf config.Configuration, flowId string, version string, outputFile string) (string, error) {
-	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='active')/$value"
+//DownloadFlow is the function to download integration flow content
+func DownloadFlow(conf config.Configuration, flowID string, version string, outputFile string) (string, error) {
+	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowID + "',Version='active')/$value"
 	log.Println("GET ", flowURL)
 	request, err := http.NewRequest("GET", flowURL, nil)
 	if err != nil {
@@ -229,7 +240,7 @@ func DownloadFlow(conf config.Configuration, flowId string, version string, outp
 	}
 	request.Header.Set("Accept", "application/json")
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 	if err != nil {
@@ -282,6 +293,7 @@ func saveBodyContent(fileName string, src io.Reader) (writtenBytes int64, err er
 	//body, _ := ioutil.ReadAll(response.Body)
 }
 
+//UpdateFlowConfigs is the function to update flow's configuration
 func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) (string, error) {
 
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
@@ -297,7 +309,7 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []mod
 		}
 
 		requestBody := map[string]string{"ParameterValue": c.ParameterValue, "DataType": c.DataType}
-		requestBodyJson, err := json.Marshal(requestBody)
+		requestBodyJSON, err := json.Marshal(requestBody)
 		if err != nil {
 			return "", err
 		}
@@ -305,7 +317,7 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []mod
 			"/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='active')/$links/Configurations('" + c.ParameterKey + "')"
 		log.Println("PUT ", updateFlowConfigsURL)
 
-		request, err := http.NewRequest("PUT", updateFlowConfigsURL, bytes.NewBuffer(requestBodyJson))
+		request, err := http.NewRequest("PUT", updateFlowConfigsURL, bytes.NewBuffer(requestBodyJSON))
 		if err != nil {
 			return "", err
 		}
@@ -317,7 +329,7 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []mod
 			request.AddCookie(cookies[i])
 		}
 
-		httpClient := GetClient(conf)
+		httpClient := getClient(conf)
 
 		response, err := httpClient.Do(request)
 		if err != nil {
@@ -338,6 +350,7 @@ func UpdateFlowConfigs(conf config.Configuration, flowName string, configs []mod
 	return bodyStr, nil
 }
 
+//UpdateFlowConfigsBatch is the function to update flow's configuration
 func UpdateFlowConfigsBatch(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) (string, error) {
 
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
@@ -404,7 +417,7 @@ func UpdateFlowConfigsBatch(conf config.Configuration, flowName string, configs 
 		request.AddCookie(cookies[i])
 	}
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 	if err != nil {
@@ -431,9 +444,9 @@ func getCsrfTokenAndCookies(conf config.Configuration) (string, []*http.Cookie, 
 		return "", nil, err
 	}
 	tokenRequest.Header.Set("X-CSRF-Token", "Fetch")
-	tokenHttpClient := GetClient(conf)
+	tokenHTTPClient := getClient(conf)
 
-	tokenResponse, err := tokenHttpClient.Do(tokenRequest)
+	tokenResponse, err := tokenHTTPClient.Do(tokenRequest)
 	if err != nil {
 		return "", nil, fmt.Errorf("%w: %s", ErrConnection, err)
 	}
@@ -477,7 +490,7 @@ func UpdateFlow(conf config.Configuration, name string, id string, version strin
 		}
 	}
 
-	requestBodyJson, err := json.Marshal(requestBody)
+	requestBodyJSON, err := json.Marshal(requestBody)
 	if err != nil {
 		return "", err
 	}
@@ -485,7 +498,7 @@ func UpdateFlow(conf config.Configuration, name string, id string, version strin
 	updateFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + id + "',Version='" + version + "')"
 	log.Println("PUT ", updateFlowURL)
 
-	request, err := http.NewRequest("PUT", updateFlowURL, bytes.NewBuffer(requestBodyJson))
+	request, err := http.NewRequest("PUT", updateFlowURL, bytes.NewBuffer(requestBodyJSON))
 	if err != nil {
 		return "", err
 	}
@@ -497,7 +510,7 @@ func UpdateFlow(conf config.Configuration, name string, id string, version strin
 		request.AddCookie(cookies[i])
 	}
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 	if err != nil {
@@ -514,9 +527,10 @@ func UpdateFlow(conf config.Configuration, name string, id string, version strin
 	return bodyStr, nil
 }
 
-func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, destFlowName string, destPackageId string) error {
+//CopyFlow is the function to copy flows in the same system
+func CopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, destFlowName string, destPackageID string) error {
 	version := "active"
-	srcFlow, err := InspectFlow(conf, srcFlowId, version)
+	srcFlow, err := InspectFlow(conf, srcFlowID, version)
 	if err != nil {
 		return err
 	}
@@ -527,7 +541,7 @@ func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, de
 	}
 	defer os.Remove(tmpFileName)
 
-	resp, err := DownloadFlow(conf, srcFlowId, version, tmpFileName)
+	resp, err := DownloadFlow(conf, srcFlowID, version, tmpFileName)
 	if err != nil {
 		return err
 	}
@@ -537,8 +551,8 @@ func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, de
 		destFlowName = srcFlow.D.Name
 	}
 
-	if destPackageId == "" {
-		destPackageId = srcFlow.D.PackageID
+	if destPackageID == "" {
+		destPackageID = srcFlow.D.PackageID
 	}
 
 	tmpFileContent, err := os.Open(tmpFileName)
@@ -547,7 +561,7 @@ func CopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, de
 	}
 	defer tmpFileContent.Close()
 
-	createResp, err := CreateFlow(conf, destFlowName, destFlowId, destPackageId, tmpFileName, tmpFileContent)
+	createResp, err := CreateFlow(conf, destFlowName, destFlowID, destPackageID, tmpFileName, tmpFileContent)
 	if err != nil {
 		return err
 	}
@@ -579,9 +593,10 @@ func getTmpFileName() (string, error) {
 
 }
 
-func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, destConf config.Configuration, destFlowId string, destFlowName string, destPackageId string) error {
+//TransportFlow is the function for Transporting flow from one system to another
+func TransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, destConf config.Configuration, destFlowID string, destFlowName string, destPackageID string) error {
 	version := "active"
-	srcFlow, err := InspectFlow(conf, srcFlowId, version)
+	srcFlow, err := InspectFlow(conf, srcFlowID, version)
 	if err != nil {
 		return err
 	}
@@ -592,25 +607,25 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 	}
 	defer os.Remove(tmpFileName)
 
-	resp, err := DownloadFlow(conf, srcFlowId, version, tmpFileName)
+	resp, err := DownloadFlow(conf, srcFlowID, version, tmpFileName)
 	if err != nil {
 		return err
 	}
 	fmt.Fprintf(out, "%s\n", resp)
 
-	if srcFlowId != destFlowId {
-		tmpFileName, err = adjustDownloadedFlow(srcFlowId, destFlowId, tmpFileName)
+	if srcFlowID != destFlowID {
+		tmpFileName, err = adjustDownloadedFlow(srcFlowID, destFlowID, tmpFileName)
 		if err != nil {
 			return err
 		}
 		defer os.Remove(tmpFileName)
 	}
 
-	if destPackageId == "" {
-		destPackageId = srcFlow.D.PackageID
+	if destPackageID == "" {
+		destPackageID = srcFlow.D.PackageID
 	}
 
-	destFlow, _ := InspectFlow(destConf, destFlowId, version)
+	destFlow, _ := InspectFlow(destConf, destFlowID, version)
 
 	var createResp *model.FlowByIdResponse
 	var updateResp string
@@ -618,7 +633,7 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 		if destFlowName == "" {
 			destFlowName = destFlow.D.Name
 		}
-		updateResp, err = UpdateFlow(destConf, destFlowName, destFlowId, "active", tmpFileName)
+		updateResp, err = UpdateFlow(destConf, destFlowName, destFlowID, "active", tmpFileName)
 		fmt.Fprintf(out, "Integration flow updated. Response: %s\n", updateResp)
 	} else {
 		if destFlowName == "" {
@@ -631,7 +646,7 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 		}
 		defer tmpFileContent.Close()
 
-		createResp, err = CreateFlow(destConf, destFlowName, destFlowId, destPackageId, tmpFileName, tmpFileContent)
+		createResp, err = CreateFlow(destConf, destFlowName, destFlowID, destPackageID, tmpFileName, tmpFileContent)
 		if err != nil {
 			return err
 		}
@@ -646,7 +661,7 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, d
 	return nil
 }
 
-func adjustDownloadedFlow(srcFlowId, destFlowId string, zipFile string) (newZipFile string, err error) {
+func adjustDownloadedFlow(srcFlowID, destFlowID string, zipFile string) (newZipFile string, err error) {
 
 	fileDestinationFolder := zipFile[:len(zipFile)-4]
 
@@ -657,16 +672,16 @@ func adjustDownloadedFlow(srcFlowId, destFlowId string, zipFile string) (newZipF
 	log.Printf("file: %s has been unzipped to directory %s\n", zipFile, fileDestinationFolder)
 
 	manifestFile := filepath.Join(fileDestinationFolder, "META-INF/MANIFEST.MF")
-	oldValue := "SymbolicName: " + srcFlowId
-	newValue := "SymbolicName: " + destFlowId
+	oldValue := "SymbolicName: " + srcFlowID
+	newValue := "SymbolicName: " + destFlowID
 	err = replaceFileContent(manifestFile, oldValue, newValue)
 	if err != nil {
 		return "", fmt.Errorf("error updating META-INF/MANIFEST.MF file: %w", err)
 	}
 
 	projectFile := filepath.Join(fileDestinationFolder, ".project")
-	oldValue = "<name>" + srcFlowId + "</name>"
-	newValue = "<name>" + destFlowId + "</name>"
+	oldValue = "<name>" + srcFlowID + "</name>"
+	newValue = "<name>" + destFlowID + "</name>"
 	err = replaceFileContent(projectFile, oldValue, newValue)
 	if err != nil {
 		return "", fmt.Errorf("error updating .project file: %w", err)
@@ -706,6 +721,9 @@ func unzipFile(sourceFile, targetDirectory string) (err error) {
 	defer openedFile.Close()
 
 	for _, file := range openedFile.File {
+		if strings.Contains(file.Name, "..") {
+			continue
+		}
 		filePath := filepath.Join(targetDirectory, file.Name)
 		//log.Println("unzipping file", filePath)
 		if file.FileInfo().IsDir() {
@@ -726,40 +744,6 @@ func unzipFile(sourceFile, targetDirectory string) (err error) {
 			if err != nil {
 				return err
 			}
-
-			// fileName := file.Name
-			// if fileName == "META-INF/MANIFEST.MF" {
-			// 	//br := bufio.NewReader(fileInArchive)
-			// 	oldContents, err := io.ReadAll(fileInArchive)
-			// 	if err != nil {
-			// 		return fmt.Errorf("error reading file: %w", err)
-			// 	}
-			// 	newContents := strings.Replace(string(oldContents), "SymbolicName: "+srcFlowId, "SymbolicName: "+destFlowId, -1)
-			// 	if _, err := io.Copy(destinationFile, strings.NewReader(newContents)); err != nil {
-			// 		panic(err)
-			// 	}
-			// 	log.Printf("File: %s has been updated.\n", fileName)
-			// 	destinationFile.Close()
-			// 	fileInArchive.Close()
-			// 	continue
-
-			// }
-
-			// if fileName == ".project" {
-
-			// 	oldContents, err := io.ReadAll(fileInArchive)
-			// 	if err != nil {
-			// 		return fmt.Errorf("error reading file: %w", err)
-			// 	}
-			// 	newContents := strings.Replace(string(oldContents), "<name>"+srcFlowId+"</name>", "<name>"+destFlowId+"</name>", 1)
-			// 	if _, err := io.Copy(destinationFile, strings.NewReader(newContents)); err != nil {
-			// 		panic(err)
-			// 	}
-			// 	log.Printf("File: %s has been updated.\n", fileName)
-			// 	destinationFile.Close()
-			// 	fileInArchive.Close()
-			// 	continue
-			// }
 
 			if _, err := io.Copy(destinationFile, fileInArchive); err != nil {
 				panic(err)

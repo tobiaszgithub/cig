@@ -63,7 +63,7 @@ func ResourceUpdate(out io.Writer, conf config.Configuration, flowId string, flo
 		request.AddCookie(cookies[i])
 	}
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 	if err != nil {

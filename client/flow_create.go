@@ -83,7 +83,7 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 		}
 	}
 
-	requestBodyJson, err := json.Marshal(requestBody)
+	requestBodyJSON, err := json.Marshal(requestBody)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 	createFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts"
 	log.Println("POST ", createFlowURL)
 
-	request, err := http.NewRequest("POST", createFlowURL, bytes.NewBuffer(requestBodyJson))
+	request, err := http.NewRequest("POST", createFlowURL, bytes.NewBuffer(requestBodyJSON))
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 		request.AddCookie(cookies[i])
 	}
 
-	httpClient := GetClient(conf)
+	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
 	if err != nil {
