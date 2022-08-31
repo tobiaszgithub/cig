@@ -774,6 +774,9 @@ func unzipFile(sourceFile, targetDirectory string) (err error) {
 	defer openedFile.Close()
 
 	for _, file := range openedFile.File {
+		if strings.Contains(file.Name, "..") {
+			continue
+		}
 		filePath := filepath.Join(targetDirectory, file.Name)
 		//log.Println("unzipping file", filePath)
 		if file.FileInfo().IsDir() {
@@ -794,40 +797,6 @@ func unzipFile(sourceFile, targetDirectory string) (err error) {
 			if err != nil {
 				return err
 			}
-
-			// fileName := file.Name
-			// if fileName == "META-INF/MANIFEST.MF" {
-			// 	//br := bufio.NewReader(fileInArchive)
-			// 	oldContents, err := io.ReadAll(fileInArchive)
-			// 	if err != nil {
-			// 		return fmt.Errorf("error reading file: %w", err)
-			// 	}
-			// 	newContents := strings.Replace(string(oldContents), "SymbolicName: "+srcFlowId, "SymbolicName: "+destFlowId, -1)
-			// 	if _, err := io.Copy(destinationFile, strings.NewReader(newContents)); err != nil {
-			// 		panic(err)
-			// 	}
-			// 	log.Printf("File: %s has been updated.\n", fileName)
-			// 	destinationFile.Close()
-			// 	fileInArchive.Close()
-			// 	continue
-
-			// }
-
-			// if fileName == ".project" {
-
-			// 	oldContents, err := io.ReadAll(fileInArchive)
-			// 	if err != nil {
-			// 		return fmt.Errorf("error reading file: %w", err)
-			// 	}
-			// 	newContents := strings.Replace(string(oldContents), "<name>"+srcFlowId+"</name>", "<name>"+destFlowId+"</name>", 1)
-			// 	if _, err := io.Copy(destinationFile, strings.NewReader(newContents)); err != nil {
-			// 		panic(err)
-			// 	}
-			// 	log.Printf("File: %s has been updated.\n", fileName)
-			// 	destinationFile.Close()
-			// 	fileInArchive.Close()
-			// 	continue
-			// }
 
 			if _, err := io.Copy(destinationFile, fileInArchive); err != nil {
 				panic(err)
