@@ -457,6 +457,7 @@ func getCsrfTokenAndCookies(conf config.Configuration) (string, []*http.Cookie, 
 	return csrfToken, cookies, nil
 }
 
+//UpdateFlow - update integration flow name and content
 func UpdateFlow(conf config.Configuration, name string, id string, version string, fileName string) (string, error) {
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {

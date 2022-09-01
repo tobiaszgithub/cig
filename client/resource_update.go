@@ -14,14 +14,16 @@ import (
 	"github.com/tobiaszgithub/cig/config"
 )
 
-func RunResourceUpdate(out io.Writer, conf config.Configuration, flowId string, flowVersion string, resourceName string, resourceType string, resourceFileName string) {
-	err := ResourceUpdate(out, conf, flowId, flowVersion, resourceName, resourceType, resourceFileName)
+//RunResourceUpdate - call ResourceUpdate
+func RunResourceUpdate(out io.Writer, conf config.Configuration, flowID string, flowVersion string, resourceName string, resourceType string, resourceFileName string) {
+	err := ResourceUpdate(out, conf, flowID, flowVersion, resourceName, resourceType, resourceFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func ResourceUpdate(out io.Writer, conf config.Configuration, flowId string, flowVersion string, resourceName string, resourceType string, resourceFileName string) error {
+//ResourceUpdate - update resource of the integration flow
+func ResourceUpdate(out io.Writer, conf config.Configuration, flowID string, flowVersion string, resourceName string, resourceType string, resourceFileName string) error {
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {
 		return err
@@ -42,16 +44,16 @@ func ResourceUpdate(out io.Writer, conf config.Configuration, flowId string, flo
 		"ResourceContent": encodedContent,
 	}
 
-	requestBodyJson, err := json.Marshal(requestBody)
+	requestBodyJSON, err := json.Marshal(requestBody)
 	if err != nil {
 		return err
 	}
 
-	updateResourceURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowId + "',Version='" + flowVersion + "')" +
+	updateResourceURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowID + "',Version='" + flowVersion + "')" +
 		"/$links/Resources(Name='" + resourceName + "',ResourceType='" + resourceType + "')"
 	log.Println("PUT ", updateResourceURL)
 
-	request, err := http.NewRequest("PUT", updateResourceURL, bytes.NewBuffer(requestBodyJson))
+	request, err := http.NewRequest("PUT", updateResourceURL, bytes.NewBuffer(requestBodyJSON))
 	if err != nil {
 		return err
 	}

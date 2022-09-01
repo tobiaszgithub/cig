@@ -9,6 +9,7 @@ import (
 	"github.com/tobiaszgithub/cig/model"
 )
 
+//RunGetIntegrationPackages - call the GetIntegrationPackages
 func RunGetIntegrationPackages(conf config.Configuration) {
 
 	// conf, err := config.NewConfiguration(tenantKey)
@@ -26,13 +27,14 @@ func RunGetIntegrationPackages(conf config.Configuration) {
 
 }
 
-func RunInspectIntegrationPackage(conf config.Configuration, packageId string) {
+//RunInspectIntegrationPackage - call the InspectIntegrationPackage
+func RunInspectIntegrationPackage(conf config.Configuration, packageID string) {
 	// conf, err := config.NewDefaultConfiguration()
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
 
-	resp, err := InspectIntegrationPackage(conf, packageId)
+	resp, err := InspectIntegrationPackage(conf, packageID)
 	if err != nil {
 		log.Fatal("Error in InspectIntegrationPackage: ", err)
 	}
@@ -40,6 +42,7 @@ func RunInspectIntegrationPackage(conf config.Configuration, packageId string) {
 
 }
 
+//RunGetFlowsOfIntegrationPackage - call the GetFlowsOfIntegrationPackage
 func RunGetFlowsOfIntegrationPackage(conf config.Configuration, packageName string) {
 	// conf, err := config.NewDefaultConfiguration()
 	// if err != nil {
@@ -54,6 +57,7 @@ func RunGetFlowsOfIntegrationPackage(conf config.Configuration, packageName stri
 
 }
 
+//RunDownloadIntegrationPackage - call the function DownloadIntegrationPackage
 func RunDownloadIntegrationPackage(conf config.Configuration, packageName string) {
 	// conf, err := config.NewDefaultConfiguration()
 	// if err != nil {
@@ -67,12 +71,13 @@ func RunDownloadIntegrationPackage(conf config.Configuration, packageName string
 
 }
 
-func RunDownloadFlow(conf config.Configuration, flowId string, version string, outputFile string) {
+//RunDownloadFlow - call the function DownloadFlow
+func RunDownloadFlow(conf config.Configuration, flowID string, version string, outputFile string) {
 	if outputFile == "" {
-		outputFile = flowId + ".zip"
+		outputFile = flowID + ".zip"
 	}
 
-	resp, err := DownloadFlow(conf, flowId, version, outputFile)
+	resp, err := DownloadFlow(conf, flowID, version, outputFile)
 	if err != nil {
 		log.Fatal("Error in DownloadFlow: ", err)
 	}
@@ -81,6 +86,7 @@ func RunDownloadFlow(conf config.Configuration, flowId string, version string, o
 
 }
 
+//RunUpdateFlowConfigs - call the function UpdateFlowConfigsBatch
 func RunUpdateFlowConfigs(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) {
 
 	resp, err := UpdateFlowConfigsBatch(conf, flowName, configs)
@@ -93,6 +99,7 @@ func RunUpdateFlowConfigs(conf config.Configuration, flowName string, configs []
 
 }
 
+//RunUpdateFlow - call the function UpdateFlow
 func RunUpdateFlow(conf config.Configuration, name string, id string, version string, fileName string) {
 
 	resp, err := UpdateFlow(conf, name, id, version, fileName)
@@ -104,21 +111,23 @@ func RunUpdateFlow(conf config.Configuration, name string, id string, version st
 
 }
 
-func RunCopyFlow(conf config.Configuration, srcFlowId string, destFlowId string, destFlowName string, destPackageId string) {
-	err := CopyFlow(conf, srcFlowId, destFlowId, destFlowName, destPackageId)
+//RunCopyFlow - call the function CopyFlow
+func RunCopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, destFlowName string, destPackageID string) {
+	err := CopyFlow(conf, srcFlowID, destFlowID, destFlowName, destPackageID)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func RunTransportFlow(out io.Writer, conf config.Configuration, srcFlowId string, destFlowId string, destTenantKey string, destFlowName string, destPackageId string) {
+//RunTransportFlow - call the function TransportFlow
+func RunTransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, destFlowID string, destTenantKey string, destFlowName string, destPackageID string) {
 
 	destConf, err := config.NewConfiguration(destTenantKey)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = TransportFlow(out, conf, srcFlowId, destConf, destFlowId, destFlowName, destPackageId)
+	err = TransportFlow(out, conf, srcFlowID, destConf, destFlowID, destFlowName, destPackageID)
 	if err != nil {
 		log.Fatal(err)
 	}

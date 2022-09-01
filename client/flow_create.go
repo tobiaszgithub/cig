@@ -15,6 +15,7 @@ import (
 	"github.com/tobiaszgithub/cig/model"
 )
 
+//RunCreateFlow - call the function CreateFlow
 func RunCreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) {
 
 	var fileContent *os.File
@@ -37,6 +38,7 @@ func RunCreateFlow(conf config.Configuration, name string, id string, packageid 
 
 }
 
+//CreateFlow - create integration flow, it is possible to create empty integration flow or with content
 func CreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string, flowContent io.Reader) (*model.FlowByIdResponse, error) {
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {

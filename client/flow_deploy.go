@@ -10,6 +10,7 @@ import (
 	"github.com/tobiaszgithub/cig/config"
 )
 
+//RunDeployFlow - call the function DeployFlow
 func RunDeployFlow(out io.Writer, conf config.Configuration, id string, version string) {
 
 	err := DeployFlow(out, conf, id, version)
@@ -18,6 +19,7 @@ func RunDeployFlow(out io.Writer, conf config.Configuration, id string, version 
 	}
 }
 
+//DeployFlow - deploy integration flow
 func DeployFlow(out io.Writer, conf config.Configuration, id string, version string) error {
 
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)

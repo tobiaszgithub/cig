@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -397,8 +396,8 @@ func TestCreateFlow(t *testing.T) {
 
 			conf.ApiURL = url
 			//version := "active"
-			var fileContent io.Reader
-			fileContent = strings.NewReader("")
+			//var fileContent io.Reader
+			fileContent := strings.NewReader("")
 			resp, err := client.CreateFlow(conf, tc.flowId, tc.flowId, "packageId", "", fileContent)
 			if tc.expError != nil {
 				if err == nil {

@@ -13,6 +13,7 @@ import (
 	"github.com/tobiaszgithub/cig/model"
 )
 
+//RunGetFlowConfigs - call the function GetFlowConfigs
 func RunGetFlowConfigs(out io.Writer, conf config.Configuration, flowName string, fileName string, version string) {
 
 	resp, err := GetFlowConfigs(conf, flowName, version)
@@ -38,6 +39,7 @@ func RunGetFlowConfigs(out io.Writer, conf config.Configuration, flowName string
 	}
 }
 
+//GetFlowConfigs - get integration flows configuration
 func GetFlowConfigs(conf config.Configuration, flowName string, version string) (*model.FlowConfigurations, error) {
 	configsFlowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowName + "',Version='" + version + "')/Configurations"
 	log.Println("GET ", configsFlowURL)
