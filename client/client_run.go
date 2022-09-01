@@ -99,18 +99,6 @@ func RunUpdateFlowConfigs(conf config.Configuration, flowName string, configs []
 
 }
 
-//RunUpdateFlow - call the function UpdateFlow
-func RunUpdateFlow(conf config.Configuration, name string, id string, version string, fileName string) {
-
-	resp, err := UpdateFlow(conf, name, id, version, fileName)
-	if err != nil {
-		log.Fatal("Error in UpdateFlow:\n", err)
-	}
-
-	fmt.Println(resp)
-
-}
-
 //RunCopyFlow - call the function CopyFlow
 func RunCopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, destFlowName string, destPackageID string) {
 	err := CopyFlow(conf, srcFlowID, destFlowID, destFlowName, destPackageID)
