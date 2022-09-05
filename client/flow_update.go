@@ -5,17 +5,29 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/tobiaszgithub/cig/config"
 )
 
 //RunUpdateFlow - call the function UpdateFlow
 func RunUpdateFlow(conf config.Configuration, name string, id string, version string, fileName string) {
-
-	resp, err := UpdateFlow(conf, name, id, version, fileName)
+	var fileContent io.Reader
+	if fileName != "" {
+		fileContent, err := os.Open(fileName)
+		if err != nil {
+			log.Fatal("Error Openning file: ", err)
+		}
+		defer fileContent.Close()
+	} else {
+		fileContent = strings.NewReader("")
+	}
+	resp, err := UpdateFlow(conf, name, id, version, fileName, fileContent)
 	if err != nil {
 		log.Fatal("Error in UpdateFlow:\n", err)
 	}
@@ -25,7 +37,7 @@ func RunUpdateFlow(conf config.Configuration, name string, id string, version st
 }
 
 //UpdateFlow - update integration flow name and content
-func UpdateFlow(conf config.Configuration, name string, id string, version string, fileName string) (string, error) {
+func UpdateFlow(conf config.Configuration, name string, id string, version string, fileName string, flowContent io.Reader) (string, error) {
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {
 		return "", err
@@ -40,9 +52,14 @@ func UpdateFlow(conf config.Configuration, name string, id string, version strin
 		}
 
 		encodedContent = base64.StdEncoding.EncodeToString(contentData)
-		// println()
-		// println(encodedContent)
-		// println()
+	}
+
+	if flowContent != nil {
+		contentData, err := io.ReadAll(flowContent)
+		if err != nil {
+			return "", err
+		}
+		encodedContent = base64.StdEncoding.EncodeToString(contentData)
 	}
 
 	var requestBody map[string]string
@@ -82,15 +99,23 @@ func UpdateFlow(conf config.Configuration, name string, id string, version strin
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %s", ErrConnection, err)
 	}
 	defer response.Body.Close()
 
-	body, _ := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("cannot read response body: %w", err)
+	}
 	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
 	if !statusOk {
-		return "", fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
+		err = ErrInvalidResponse
+		if response.StatusCode == http.StatusNotFound {
+			err = ErrNotFound
+		}
+		return "", fmt.Errorf("%w: %s", err, body)
+		//return "", fmt.Errorf("response Status: %s, response body: %s", response.Status, string(body))
 	}
-	bodyStr := string(body) + "\n"
+	bodyStr := fmt.Sprintf("Integration flow: %s updated", id)
 	return bodyStr, nil
 }

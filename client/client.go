@@ -550,6 +550,12 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, d
 		defer os.Remove(tmpFileName)
 	}
 
+	tmpFileContent, err := os.Open(tmpFileName)
+	if err != nil {
+		return err
+	}
+	defer tmpFileContent.Close()
+
 	if destPackageID == "" {
 		destPackageID = srcFlow.D.PackageID
 	}
@@ -562,18 +568,12 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, d
 		if destFlowName == "" {
 			destFlowName = destFlow.D.Name
 		}
-		updateResp, err = UpdateFlow(destConf, destFlowName, destFlowID, "active", tmpFileName)
+		updateResp, err = UpdateFlow(destConf, destFlowName, destFlowID, "active", tmpFileName, tmpFileContent)
 		fmt.Fprintf(out, "Integration flow updated. Response: %s\n", updateResp)
 	} else {
 		if destFlowName == "" {
 			destFlowName = srcFlow.D.Name
 		}
-
-		tmpFileContent, err := os.Open(tmpFileName)
-		if err != nil {
-			return err
-		}
-		defer tmpFileContent.Close()
 
 		createResp, err = CreateFlow(destConf, destFlowName, destFlowID, destPackageID, tmpFileName, tmpFileContent)
 		if err != nil {

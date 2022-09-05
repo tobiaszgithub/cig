@@ -421,6 +421,98 @@ func TestCreateFlow(t *testing.T) {
 	}
 }
 
+func TestUpdateFlow(t *testing.T) {
+
+	testResp := map[string]struct {
+		Status int
+		Body   string
+	}{
+		"resultOne": {
+			Status: http.StatusOK,
+			Body:   `Integration flow: PurchaseOrderTest updated`,
+		},
+		"notFound": {
+			Status: http.StatusNotFound,
+			Body:   `{"error":{"code":"Not Found","message":{"lang":"en","value":"Integration design time artifact not found."}}}`,
+		},
+	}
+
+	conf := getTestConfiguration()
+
+	testCases := []struct {
+		name      string
+		flowId    string
+		packageId string
+		expError  error
+		resp      struct {
+			Status int
+			Body   string
+		}
+		closeServer bool
+	}{
+		{
+			name:      "resultOne",
+			flowId:    "PurchaseOrderTest",
+			packageId: "POscenerio",
+			expError:  nil,
+			resp:      testResp["resultOne"],
+		},
+		{
+			name:        "notFound",
+			flowId:      "PurchaseOrderTest",
+			packageId:   "notexistingPackageId",
+			expError:    client.ErrNotFound,
+			resp:        testResp["notFound"],
+			closeServer: false,
+		},
+		{
+			name:        "InvalidURL",
+			flowId:      "PurchaseOrder",
+			expError:    client.ErrConnection,
+			resp:        testResp["notFound"],
+			closeServer: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			url, cleanup := mockServer(
+				func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(tc.resp.Status)
+					fmt.Fprintln(w, tc.resp.Body)
+				})
+			defer cleanup()
+			if tc.closeServer {
+				cleanup()
+			}
+
+			conf.ApiURL = url
+			//version := "active"
+			//var fileContent io.Reader
+			fileContent := strings.NewReader("")
+			resp, err := client.UpdateFlow(conf, tc.flowId, tc.flowId, "packageId", "", fileContent)
+			if tc.expError != nil {
+				if err == nil {
+					t.Fatalf("Expected error %q, got no error.", tc.expError)
+				}
+				if !errors.Is(err, tc.expError) {
+					t.Errorf("Expected error %q, got %q.", tc.expError, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("Expected no error, got %q.", err)
+			}
+			if resp == "" {
+				t.Errorf("response should not be initial")
+			}
+			if strings.Contains(resp, tc.flowId) == false {
+				t.Errorf("response body should contain flow id")
+			}
+		})
+	}
+}
+
 func getTestConfiguration() config.Configuration {
 	conf := config.Configuration{}
 	conf.ApiURL = ""

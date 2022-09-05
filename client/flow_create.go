@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/tobiaszgithub/cig/config"
 	"github.com/tobiaszgithub/cig/model"
@@ -17,8 +18,7 @@ import (
 
 //RunCreateFlow - call the function CreateFlow
 func RunCreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string) {
-
-	var fileContent *os.File
+	var fileContent io.Reader
 	if fileName != "" {
 		fileContent, err := os.Open(fileName)
 		if err != nil {
@@ -26,7 +26,7 @@ func RunCreateFlow(conf config.Configuration, name string, id string, packageid 
 		}
 		defer fileContent.Close()
 	} else {
-		fileContent = nil
+		fileContent = strings.NewReader("")
 	}
 
 	resp, err := CreateFlow(conf, name, id, packageid, fileName, fileContent)
@@ -54,9 +54,6 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 		}
 
 		encodedContent = base64.StdEncoding.EncodeToString(contentData)
-		// println()
-		// println(encodedContent)
-		// println()
 	}
 
 	if flowContent != nil {
@@ -65,7 +62,6 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 			return nil, err
 		}
 		encodedContent = base64.StdEncoding.EncodeToString(contentData)
-
 	}
 
 	var requestBody map[string]string
