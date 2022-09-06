@@ -18,6 +18,7 @@ config.json
 *.bak
 *.json
 dist/
+*.zip
 
 #executable in linux
 cig

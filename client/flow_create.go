@@ -29,7 +29,7 @@ func RunCreateFlow(conf config.Configuration, name string, id string, packageid 
 		fileContent = strings.NewReader("")
 	}
 
-	resp, err := CreateFlow(conf, name, id, packageid, fileName, fileContent)
+	resp, err := CreateFlow(conf, name, id, packageid, fileContent)
 	if err != nil {
 		log.Fatal("Error in CreateFlow:\n", err)
 	}
@@ -39,7 +39,7 @@ func RunCreateFlow(conf config.Configuration, name string, id string, packageid 
 }
 
 //CreateFlow - create integration flow, it is possible to create empty integration flow or with content
-func CreateFlow(conf config.Configuration, name string, id string, packageid string, fileName string, flowContent io.Reader) (*model.FlowByIdResponse, error) {
+func CreateFlow(conf config.Configuration, name string, id string, packageid string, flowContent io.Reader) (*model.FlowByIdResponse, error) {
 	csrfToken, cookies, err := getCsrfTokenAndCookies(conf)
 	if err != nil {
 		return nil, err
@@ -47,22 +47,22 @@ func CreateFlow(conf config.Configuration, name string, id string, packageid str
 
 	var encodedContent string
 
-	if fileName != "" {
-		contentData, err := ioutil.ReadFile(fileName)
-		if err != nil {
-			return nil, err
-		}
+	// if fileName != "" {
+	// 	contentData, err := ioutil.ReadFile(fileName)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
 
-		encodedContent = base64.StdEncoding.EncodeToString(contentData)
-	}
+	// 	encodedContent = base64.StdEncoding.EncodeToString(contentData)
+	// }
 
-	if flowContent != nil {
-		contentData, err := io.ReadAll(flowContent)
-		if err != nil {
-			return nil, err
-		}
-		encodedContent = base64.StdEncoding.EncodeToString(contentData)
+	//if flowContent != nil {
+	contentData, err := io.ReadAll(flowContent)
+	if err != nil {
+		return nil, err
 	}
+	encodedContent = base64.StdEncoding.EncodeToString(contentData)
+	//}
 
 	var requestBody map[string]string
 

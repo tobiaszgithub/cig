@@ -397,8 +397,8 @@ func TestCreateFlow(t *testing.T) {
 			conf.ApiURL = url
 			//version := "active"
 			//var fileContent io.Reader
-			fileContent := strings.NewReader("")
-			resp, err := client.CreateFlow(conf, tc.flowId, tc.flowId, "packageId", "", fileContent)
+			fileContent := strings.NewReader("test string")
+			resp, err := client.CreateFlow(conf, tc.flowId, tc.flowId, "packageId", fileContent)
 			if tc.expError != nil {
 				if err == nil {
 					t.Fatalf("Expected error %q, got no error.", tc.expError)

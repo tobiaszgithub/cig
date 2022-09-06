@@ -490,7 +490,7 @@ func CopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, de
 	}
 	defer tmpFileContent.Close()
 
-	createResp, err := CreateFlow(conf, destFlowName, destFlowID, destPackageID, tmpFileName, tmpFileContent)
+	createResp, err := CreateFlow(conf, destFlowName, destFlowID, destPackageID, tmpFileContent)
 	if err != nil {
 		return err
 	}
@@ -575,7 +575,7 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, d
 			destFlowName = srcFlow.D.Name
 		}
 
-		createResp, err = CreateFlow(destConf, destFlowName, destFlowID, destPackageID, tmpFileName, tmpFileContent)
+		createResp, err = CreateFlow(destConf, destFlowName, destFlowID, destPackageID, tmpFileContent)
 		if err != nil {
 			return err
 		}
