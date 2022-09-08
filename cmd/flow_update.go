@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
@@ -28,7 +29,7 @@ var flowUpdateCmd = &cobra.Command{
 		fileName, _ := cmd.Flags().GetString("content-file-name")
 		version, _ := cmd.Flags().GetString("version")
 
-		client.RunUpdateFlow(conf, name, id, version, fileName)
+		client.RunUpdateFlow(os.Stdout, conf, name, id, version, fileName)
 	},
 }
 

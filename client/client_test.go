@@ -490,7 +490,8 @@ func TestUpdateFlow(t *testing.T) {
 			//version := "active"
 			//var fileContent io.Reader
 			fileContent := strings.NewReader("")
-			resp, err := client.UpdateFlow(conf, tc.flowId, tc.flowId, "packageId", "", fileContent)
+			var out bytes.Buffer
+			err := client.UpdateFlow(&out, conf, tc.flowId, tc.flowId, "packageId", "", fileContent)
 			if tc.expError != nil {
 				if err == nil {
 					t.Fatalf("Expected error %q, got no error.", tc.expError)
@@ -503,12 +504,11 @@ func TestUpdateFlow(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Expected no error, got %q.", err)
 			}
-			if resp == "" {
-				t.Errorf("response should not be initial")
-			}
-			if strings.Contains(resp, tc.flowId) == false {
+
+			if strings.Contains(out.String(), tc.flowId) == false {
 				t.Errorf("response body should contain flow id")
 			}
+
 		})
 	}
 }

@@ -523,7 +523,7 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, d
 		if destFlowName == "" {
 			destFlowName = destFlow.D.Name
 		}
-		updateResp, err = UpdateFlow(destConf, destFlowName, destFlowID, "active", tmpFileName, tmpFileContent)
+		err = UpdateFlow(out, destConf, destFlowName, destFlowID, "active", tmpFileName, tmpFileContent)
 		fmt.Fprintf(out, "Integration flow updated. Response: %s\n", updateResp)
 	} else {
 		if destFlowName == "" {
