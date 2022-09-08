@@ -17,7 +17,7 @@ func RunInspectFlow(conf config.Configuration, flowID string, version string) {
 
 	resp, err := InspectFlow(conf, flowID, version)
 	if err != nil {
-		log.Fatal("Error in InspectFlow: ", err)
+		log.Fatal("Error in InspectFlow:\n", err)
 	}
 	resp.Print(os.Stdout)
 }

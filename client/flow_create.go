@@ -22,7 +22,7 @@ func RunCreateFlow(conf config.Configuration, name string, id string, packageid 
 	if fileName != "" {
 		fileContent, err = os.Open(fileName)
 		if err != nil {
-			log.Fatal("Error Openning file: ", err)
+			log.Fatal("Error Openning file:\n", err)
 		}
 		defer fileContent.Close()
 	}

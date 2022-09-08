@@ -18,7 +18,7 @@ func RunGetFlowConfigs(out io.Writer, conf config.Configuration, flowName string
 
 	resp, err := GetFlowConfigs(conf, flowName, version)
 	if err != nil {
-		log.Fatal("Error in GetFlowConfigs: ", err)
+		log.Fatal("Error in GetFlowConfigs:\n", err)
 	}
 
 	resp.Print(out)
@@ -29,7 +29,7 @@ func RunGetFlowConfigs(out io.Writer, conf config.Configuration, flowName string
 		log.Println("File name: ", fileName)
 		outputFile, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
 		if err != nil {
-			log.Fatal("Error creating file: ", err)
+			log.Fatal("Error creating file:\n", err)
 		}
 		defer outputFile.Close()
 	}
