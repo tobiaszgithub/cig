@@ -99,14 +99,6 @@ func RunUpdateFlowConfigs(conf config.Configuration, flowName string, configs []
 
 }
 
-//RunCopyFlow - call the function CopyFlow
-func RunCopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, destFlowName string, destPackageID string) {
-	err := CopyFlow(conf, srcFlowID, destFlowID, destFlowName, destPackageID)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 //RunTransportFlow - call the function TransportFlow
 func RunTransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, destFlowID string, destTenantKey string, destFlowName string, destPackageID string) {
 

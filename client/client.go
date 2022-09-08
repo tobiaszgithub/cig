@@ -456,51 +456,6 @@ func getCsrfTokenAndCookies(conf config.Configuration) (string, []*http.Cookie, 
 	return csrfToken, cookies, nil
 }
 
-//CopyFlow is the function to copy flows in the same system
-func CopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, destFlowName string, destPackageID string) error {
-	version := "active"
-	srcFlow, err := InspectFlow(conf, srcFlowID, version)
-	if err != nil {
-		return err
-	}
-
-	tmpFileName, err := getTmpFileName()
-	if err != nil {
-		return err
-	}
-	defer os.Remove(tmpFileName)
-
-	resp, err := DownloadFlow(conf, srcFlowID, version, tmpFileName)
-	if err != nil {
-		return err
-	}
-	log.Print(resp)
-
-	if destFlowName == "" {
-		destFlowName = srcFlow.D.Name
-	}
-
-	if destPackageID == "" {
-		destPackageID = srcFlow.D.PackageID
-	}
-
-	tmpFileContent, err := os.Open(tmpFileName)
-	if err != nil {
-		return err
-	}
-	defer tmpFileContent.Close()
-
-	createResp, err := CreateFlow(conf, destFlowName, destFlowID, destPackageID, tmpFileContent)
-	if err != nil {
-		return err
-	}
-
-	//log.Print(createResp.Print())
-	createResp.Print(os.Stdout)
-
-	return nil
-}
-
 func getTmpFileName() (string, error) {
 	tmpfile, err := os.CreateTemp("", "flow*.zip")
 	if err != nil {
