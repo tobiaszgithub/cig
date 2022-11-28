@@ -21,7 +21,7 @@ func RunDownloadFlow(out io.Writer, conf config.Configuration, flowID string, ve
 		log.Fatal("Error Openning file:\n", err)
 	}
 
-	err = DownloadFlow(out, conf, flowID, version, outputFile, outputContent)
+	err = DownloadFlow(out, conf, flowID, version, outputContent)
 	if err != nil {
 		log.Fatal("Error in DownloadFlow: ", err)
 	}
@@ -29,7 +29,7 @@ func RunDownloadFlow(out io.Writer, conf config.Configuration, flowID string, ve
 }
 
 //DownloadFlow is the function to download integration flow content
-func DownloadFlow(out io.Writer, conf config.Configuration, flowID string, version string, outputFile string, outputContent io.Writer) error {
+func DownloadFlow(out io.Writer, conf config.Configuration, flowID string, version string, outputContent io.Writer) error {
 	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowID + "',Version='active')/$value"
 	log.Println("GET ", flowURL)
 	request, err := http.NewRequest("GET", flowURL, nil)
@@ -64,7 +64,7 @@ func DownloadFlow(out io.Writer, conf config.Configuration, flowID string, versi
 		return err
 	}
 
-	output := fmt.Sprintf("File created: %s \n", outputFile)
+	output := fmt.Sprintf("Content downloaded.\n")
 	output += fmt.Sprintf("number of bytes: %d", n)
 	fmt.Fprintf(out, "%s", output)
 	return nil

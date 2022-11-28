@@ -440,7 +440,7 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, d
 	}
 	defer outputContent.Close()
 
-	err = DownloadFlow(out, conf, srcFlowID, version, tmpFileName, outputContent)
+	err = DownloadFlow(out, conf, srcFlowID, version, outputContent)
 	if err != nil {
 		return err
 	}

@@ -578,7 +578,7 @@ func TestDownloadFlow(t *testing.T) {
 			var out bytes.Buffer
 			var outputContent bytes.Buffer
 
-			err := client.DownloadFlow(&out, conf, tc.flowId, "active", "outputfile1234", &outputContent)
+			err := client.DownloadFlow(&out, conf, tc.flowId, "active", &outputContent)
 			if tc.expError != nil {
 				if err == nil {
 					t.Fatalf("Expected error %q, got no error.", tc.expError)
@@ -607,10 +607,43 @@ func TestCopyFlow(t *testing.T) {
 		Status int
 		Body   string
 	}{
-		"resultOne": {
+		"inspectFlowStatusOK": {
 			Status: http.StatusOK,
-			Body:   `Integration flow: PurchaseOrderTest updated`,
+			Body: `{
+			"d": {
+							"Id": "PurchaseOrder",
+							"Version": "1.0.5",
+							"PackageId": "POscenerio",
+							"Name": "PurchaseOrder",
+							"Description": "PO notifications",
+							"Sender": "",
+							"Receiver": ""
+			}
+		}`,
 		},
+		"createFlowStatusOK": {
+			Status: http.StatusOK,
+			Body: `{
+	"d": {
+					"__metadata": {
+									"id": "https://ec69d614trial.it-cpitrial03.cfapps.ap21.hana.ondemand.com:443/api/v1/IntegrationDesigntimeArtifacts(Id='PurchaseOrderTest',Version='1.0.0')",
+									"uri": "https://ec69d614trial.it-cpitrial03.cfapps.ap21.hana.ondemand.com:443/api/v1/IntegrationDesigntimeArtifacts(Id='PurchaseOrderTest',Version='1.0.0')",
+									"type": "com.sap.hci.api.IntegrationDesigntimeArtifact",
+									"content_type": "application/octet-stream",
+									"media_src": "https://ec69d614trial.it-cpitrial03.cfapps.ap21.hana.ondemand.com:443/api/v1/IntegrationDesigntimeArtifacts(Id='PurchaseOrderTest',Version='1.0.0')/$value",
+									"edit_media": "https://ec69d614trial.it-cpitrial03.cfapps.ap21.hana.ondemand.com:443/api/v1/IntegrationDesigntimeArtifacts(Id='PurchaseOrderTest',Version='1.0.0')/$value"
+					},
+					"Id": "PurchaseOrderCopy1",
+					"Version": "1.0.0",
+					"PackageId": "POscenerio",
+					"Name": "PurchaseOrder Copy1",
+					"Description": "",
+					"Sender": "",
+					"Receiver": ""
+	}
+}`,
+		},
+
 		"notFound": {
 			Status: http.StatusNotFound,
 			Body:   `{"error":{"code":"Not Found","message":{"lang":"en","value":"Integration design time artifact not found."}}}`,
@@ -645,16 +678,16 @@ func TestCopyFlow(t *testing.T) {
 		closeServer bool
 	}{
 		{
-			name:          "resultOne",
-			srcFlowId:     "PurchaseOrderTest",
+			name:          "flowCopyStatusOk",
+			srcFlowId:     "PurchaseOrder",
 			destFlowId:    "PurchaseOrderCopy1",
 			destPackageId: "POscenerio",
 			destFlowName:  "PurchaseOrder Copy1",
 			expError:      nil,
-			resp:          testResp["resultOne"],
+			resp:          testResp["inspectFlowStatusOK"],
 			inspectResp:   testResp[""],
 			downloadResp:  testResp[""],
-			createResp:    testResp[""],
+			createResp:    testResp["createFlowStatusOK"],
 		},
 		{
 			name:          "notFound",
@@ -680,8 +713,13 @@ func TestCopyFlow(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			url, cleanup := mockServer(
 				func(w http.ResponseWriter, r *http.Request) {
-					w.WriteHeader(tc.resp.Status)
-					fmt.Fprintln(w, tc.resp.Body)
+					if r.Method == "POST" {
+						w.WriteHeader(tc.createResp.Status)
+						fmt.Fprintln(w, tc.createResp.Body)
+					} else {
+						w.WriteHeader(tc.resp.Status)
+						fmt.Fprintln(w, tc.resp.Body)
+					}
 				})
 			defer cleanup()
 			if tc.closeServer {
@@ -693,7 +731,7 @@ func TestCopyFlow(t *testing.T) {
 			//fileContent := strings.NewReader("")
 			var out bytes.Buffer
 			//err := client.UpdateFlow(&out, conf, tc.flowId, tc.flowId, "packageId", "", fileContent)
-			err := client.CopyFlow(conf, tc.srcFlowId, tc.destFlowId, tc.destFlowName, tc.destPackageId)
+			err := client.CopyFlow(&out, conf, tc.srcFlowId, tc.destFlowId, tc.destFlowName, tc.destPackageId)
 			if tc.expError != nil {
 				if err == nil {
 					t.Fatalf("Expected error %q, got no error.", tc.expError)
@@ -706,9 +744,9 @@ func TestCopyFlow(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Expected no error, got %q.", err)
 			}
-
-			if strings.Contains(out.String(), tc.destFlowId) == false {
-				t.Errorf("response body should contain flow id")
+			outStr := out.String()
+			if strings.Contains(outStr, tc.destFlowId) == false {
+				t.Errorf("response body should contain created flow id")
 			}
 
 		})

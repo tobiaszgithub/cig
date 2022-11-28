@@ -1,8 +1,7 @@
 package client
 
 import (
-	"bytes"
-	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -10,15 +9,15 @@ import (
 )
 
 //RunCopyFlow - call the function CopyFlow
-func RunCopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, destFlowName string, destPackageID string) {
-	err := CopyFlow(conf, srcFlowID, destFlowID, destFlowName, destPackageID)
+func RunCopyFlow(out io.Writer, conf config.Configuration, srcFlowID string, destFlowID string, destFlowName string, destPackageID string) {
+	err := CopyFlow(out, conf, srcFlowID, destFlowID, destFlowName, destPackageID)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 //CopyFlow is the function to copy flows in the same system
-func CopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, destFlowName string, destPackageID string) error {
+func CopyFlow(out io.Writer, conf config.Configuration, srcFlowID string, destFlowID string, destFlowName string, destPackageID string) error {
 	version := "active"
 	srcFlow, err := InspectFlow(conf, srcFlowID, version)
 	if err != nil {
@@ -37,12 +36,12 @@ func CopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, de
 	}
 	defer outputContent.Close()
 
-	var out bytes.Buffer
-	err = DownloadFlow(&out, conf, srcFlowID, version, tmpFileName, outputContent)
+	//var out bytes.Buffer
+	err = DownloadFlow(out, conf, srcFlowID, version, outputContent)
 	if err != nil {
 		return err
 	}
-	fmt.Println(out.String())
+	//fmt.Println(out.String())
 
 	if destFlowName == "" {
 		destFlowName = srcFlow.D.Name
@@ -64,7 +63,7 @@ func CopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, de
 	}
 
 	//log.Print(createResp.Print())
-	createResp.Print(os.Stdout)
+	createResp.Print(out)
 
 	return nil
 }
