@@ -513,6 +513,208 @@ func TestUpdateFlow(t *testing.T) {
 	}
 }
 
+func TestDownloadFlow(t *testing.T) {
+	testResp := map[string]struct {
+		Status int
+		Body   string
+	}{
+		"ok": {
+			Status: http.StatusOK,
+			Body:   `example-test-file-content`,
+		},
+		"notFound": {
+			Status: http.StatusNotFound,
+			Body:   `{"error":{"code":"Not Found","message":{"lang":"en","value":"Integration design time artifact not found"}}}`,
+		},
+	}
+
+	conf := getTestConfiguration()
+
+	testCases := []struct {
+		name     string
+		flowId   string
+		expError error
+		resp     struct {
+			Status int
+			Body   string
+		}
+		closeServer bool
+	}{
+		{
+			name:     "ok",
+			flowId:   "PurchaseOrder",
+			expError: nil,
+			resp:     testResp["ok"],
+		},
+		{
+			name:        "notFound",
+			flowId:      "notExistingFlowId",
+			expError:    client.ErrNotFound,
+			resp:        testResp["notFound"],
+			closeServer: false,
+		},
+		{
+			name:        "InvalidURL",
+			flowId:      "PurchaseOrder",
+			expError:    client.ErrConnection,
+			resp:        testResp["notFound"],
+			closeServer: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			url, cleanup := mockServer(
+				func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(tc.resp.Status)
+					fmt.Fprintln(w, tc.resp.Body)
+				})
+			defer cleanup()
+			if tc.closeServer {
+				cleanup()
+			}
+			conf.ApiURL = url
+
+			var out bytes.Buffer
+			var outputContent bytes.Buffer
+
+			err := client.DownloadFlow(&out, conf, tc.flowId, "active", "outputfile1234", &outputContent)
+			if tc.expError != nil {
+				if err == nil {
+					t.Fatalf("Expected error %q, got no error.", tc.expError)
+				}
+				if !errors.Is(err, tc.expError) {
+					t.Errorf("Expected error %q, got %q.", tc.expError, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("Expected no error, got %q.", err)
+			}
+			if out.String() == "" {
+				t.Errorf("response body should not be initial")
+			}
+			if strings.Contains(out.String(), `number of bytes`) == false {
+				t.Errorf("response body should contain number of bytes")
+			}
+		})
+	}
+}
+
+func TestCopyFlow(t *testing.T) {
+
+	testResp := map[string]struct {
+		Status int
+		Body   string
+	}{
+		"resultOne": {
+			Status: http.StatusOK,
+			Body:   `Integration flow: PurchaseOrderTest updated`,
+		},
+		"notFound": {
+			Status: http.StatusNotFound,
+			Body:   `{"error":{"code":"Not Found","message":{"lang":"en","value":"Integration design time artifact not found."}}}`,
+		},
+	}
+
+	conf := getTestConfiguration()
+
+	testCases := []struct {
+		name          string
+		srcFlowId     string
+		destFlowId    string
+		destPackageId string
+		destFlowName  string
+		expError      error
+		resp          struct {
+			Status int
+			Body   string
+		}
+		inspectResp struct {
+			Status int
+			Body   string
+		}
+		downloadResp struct {
+			Status int
+			Body   string
+		}
+		createResp struct {
+			Status int
+			Body   string
+		}
+		closeServer bool
+	}{
+		{
+			name:          "resultOne",
+			srcFlowId:     "PurchaseOrderTest",
+			destFlowId:    "PurchaseOrderCopy1",
+			destPackageId: "POscenerio",
+			destFlowName:  "PurchaseOrder Copy1",
+			expError:      nil,
+			resp:          testResp["resultOne"],
+			inspectResp:   testResp[""],
+			downloadResp:  testResp[""],
+			createResp:    testResp[""],
+		},
+		{
+			name:          "notFound",
+			srcFlowId:     "PurchaseOrderTest",
+			destFlowId:    "PurchaseOrderCopy1",
+			destPackageId: "notexistingPackageId",
+			destFlowName:  "PurchaseOrder Copy1",
+			expError:      client.ErrNotFound,
+			resp:          testResp["notFound"],
+			closeServer:   false,
+		},
+		{
+			name:        "InvalidURL",
+			srcFlowId:   "PurchaseOrder",
+			destFlowId:  "PurchaseOrderCopy1",
+			expError:    client.ErrConnection,
+			resp:        testResp["notFound"],
+			closeServer: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			url, cleanup := mockServer(
+				func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(tc.resp.Status)
+					fmt.Fprintln(w, tc.resp.Body)
+				})
+			defer cleanup()
+			if tc.closeServer {
+				cleanup()
+			}
+
+			conf.ApiURL = url
+
+			//fileContent := strings.NewReader("")
+			var out bytes.Buffer
+			//err := client.UpdateFlow(&out, conf, tc.flowId, tc.flowId, "packageId", "", fileContent)
+			err := client.CopyFlow(conf, tc.srcFlowId, tc.destFlowId, tc.destFlowName, tc.destPackageId)
+			if tc.expError != nil {
+				if err == nil {
+					t.Fatalf("Expected error %q, got no error.", tc.expError)
+				}
+				if !errors.Is(err, tc.expError) {
+					t.Errorf("Expected error %q, got %q.", tc.expError, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("Expected no error, got %q.", err)
+			}
+
+			if strings.Contains(out.String(), tc.destFlowId) == false {
+				t.Errorf("response body should contain flow id")
+			}
+
+		})
+	}
+}
+
 func getTestConfiguration() config.Configuration {
 	conf := config.Configuration{}
 	conf.ApiURL = ""

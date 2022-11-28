@@ -1,6 +1,8 @@
 package client
 
 import (
+	"bytes"
+	"fmt"
 	"log"
 	"os"
 
@@ -29,11 +31,18 @@ func CopyFlow(conf config.Configuration, srcFlowID string, destFlowID string, de
 	}
 	defer os.Remove(tmpFileName)
 
-	resp, err := DownloadFlow(conf, srcFlowID, version, tmpFileName)
+	outputContent, err := os.OpenFile(tmpFileName, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
+	if err != nil {
+		log.Fatal("Error Openning file:\n", err)
+	}
+	defer outputContent.Close()
+
+	var out bytes.Buffer
+	err = DownloadFlow(&out, conf, srcFlowID, version, tmpFileName, outputContent)
 	if err != nil {
 		return err
 	}
-	log.Print(resp)
+	fmt.Println(out.String())
 
 	if destFlowName == "" {
 		destFlowName = srcFlow.D.Name

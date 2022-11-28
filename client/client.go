@@ -208,7 +208,13 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 	packageOutPath := filepath.Join(cwd, packageName+".zip")
 	//log.Println(packageOutPath)
 
-	n, err := saveBodyContent(packageOutPath, response.Body)
+	out, err := os.OpenFile(packageOutPath, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	n, err := saveBodyContent(out, response.Body)
 	if err != nil {
 		return err
 	}
@@ -227,69 +233,6 @@ func DownloadIntegrationPackage(conf config.Configuration, packageName string) e
 	log.Println("number of bytes: ", n)
 
 	return nil
-}
-
-//DownloadFlow is the function to download integration flow content
-func DownloadFlow(conf config.Configuration, flowID string, version string, outputFile string) (string, error) {
-	flowURL := conf.ApiURL + "/IntegrationDesigntimeArtifacts(Id='" + flowID + "',Version='active')/$value"
-	log.Println("GET ", flowURL)
-	request, err := http.NewRequest("GET", flowURL, nil)
-	if err != nil {
-		return "", err
-	}
-	request.Header.Set("Accept", "application/json")
-
-	httpClient := getClient(conf)
-
-	response, err := httpClient.Do(request)
-	if err != nil {
-		return "", err
-	}
-
-	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
-	if !statusOk {
-		bodyBytes, err := io.ReadAll(response.Body)
-		if err != nil {
-			return "", err
-		}
-		return "", fmt.Errorf(string(bodyBytes))
-	}
-
-	defer response.Body.Close()
-
-	n, err := saveBodyContent(outputFile, response.Body)
-	if err != nil {
-		return "", err
-	}
-
-	output := fmt.Sprintf("File created: %s \n", outputFile)
-	output += fmt.Sprintf("number of bytes: %d", n)
-	return output, nil
-}
-
-func saveBodyContent(fileName string, src io.Reader) (writtenBytes int64, err error) {
-	// cwd, err := os.Getwd()
-	// if err != nil {
-	// 	return 0, err
-	// }
-
-	// flowOutPath := filepath.Join(cwd, fileName)
-
-	out, err := os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
-	if err != nil {
-		return 0, err
-	}
-	defer out.Close()
-
-	n, err := io.Copy(out, src)
-	if err != nil {
-		return n, err
-	}
-	// log.Println(flowOutPath + " created")
-	// log.Println("number of bytes: ", n)
-
-	return n, nil
-	//body, _ := ioutil.ReadAll(response.Body)
 }
 
 //UpdateFlowConfigs is the function to update flow's configuration
@@ -491,11 +434,16 @@ func TransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, d
 	}
 	defer os.Remove(tmpFileName)
 
-	resp, err := DownloadFlow(conf, srcFlowID, version, tmpFileName)
+	outputContent, err := os.OpenFile(tmpFileName, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
+	if err != nil {
+		log.Fatal("Error Openning file:\n", err)
+	}
+	defer outputContent.Close()
+
+	err = DownloadFlow(out, conf, srcFlowID, version, tmpFileName, outputContent)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(out, "%s\n", resp)
 
 	if srcFlowID != destFlowID {
 		tmpFileName, err = adjustDownloadedFlow(srcFlowID, destFlowID, tmpFileName)

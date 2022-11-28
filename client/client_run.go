@@ -71,21 +71,6 @@ func RunDownloadIntegrationPackage(conf config.Configuration, packageName string
 
 }
 
-//RunDownloadFlow - call the function DownloadFlow
-func RunDownloadFlow(conf config.Configuration, flowID string, version string, outputFile string) {
-	if outputFile == "" {
-		outputFile = flowID + ".zip"
-	}
-
-	resp, err := DownloadFlow(conf, flowID, version, outputFile)
-	if err != nil {
-		log.Fatal("Error in DownloadFlow: ", err)
-	}
-
-	fmt.Println(resp)
-
-}
-
 //RunUpdateFlowConfigs - call the function UpdateFlowConfigsBatch
 func RunUpdateFlowConfigs(conf config.Configuration, flowName string, configs []model.FlowConfigurationPrinter) {
 

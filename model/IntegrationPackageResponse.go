@@ -50,9 +50,9 @@ func (r *IPResponse) Print() {
 			Version: ip.Version,
 			Vendor:  ip.Vendor,
 			//		PartnerContent:  ip.PartnerContent,
-			UpdateAvailable: ip.UpdateAvailable,
-			Mode:            ip.Mode,
-			CreatedBy:       ip.CreatedBy,
+			//		UpdateAvailable: ip.UpdateAvailable,
+			Mode:      ip.Mode,
+			CreatedBy: ip.CreatedBy,
 		}
 		responsePrinter.D.Results = append(responsePrinter.D.Results, ipprinter)
 
@@ -117,14 +117,25 @@ func (r *FlowsOfIPResponse) Print() {
 	var responsePrinter FlowsOfIPResponsePrinter
 
 	for _, ip := range r.D.Results {
+		description := ip.Description
+		if len(description) > 40 {
+			description = description[0:37]
+			description = description + "..."
+		}
+		name := ip.Name
+		if len(name) > 50 {
+			name = name[0:47]
+			name = name + "..."
+		}
+
 		flowprinter := FlowsOfIPPrinter{
 			ID:          ip.ID,
 			Version:     ip.Version,
 			PackageID:   ip.PackageID,
-			Name:        ip.Name,
-			Description: ip.Description,
-			Sender:      ip.Sender,
-			Receiver:    ip.Receiver,
+			Name:        name,
+			Description: description,
+			//Sender:      ip.Sender,
+			//Receiver:    ip.Receiver,
 			//			Description:     ip.Description,
 			//			ShortText:       ip.ShortText,
 			//		Vendor:  ip.Vendor,
@@ -146,8 +157,8 @@ type FlowsOfIPPrinter struct {
 	PackageID   string `header:"PackageId"`
 	Name        string `header:"Name"`
 	Description string `header:"Description"`
-	Sender      string `header:"Sender"`
-	Receiver    string `header:"Receiver"`
+	//Sender      string `header:"Sender"`
+	//Receiver    string `header:"Receiver"`
 }
 type FlowsOfIPResponsePrinter struct {
 	D struct {
@@ -163,9 +174,9 @@ type IPPrinter struct {
 	Version string `header:"Version"`
 	Vendor  string `header:"Vendor"`
 	//	PartnerContent  bool   `header:"PartnerContent"`
-	UpdateAvailable bool   `header:"UpdateAvailable"`
-	Mode            string `header:"Mode"`
-	CreatedBy       string `header:"CreatedBy"`
+	//UpdateAvailable bool   `header:"UpdateAvailable"`
+	Mode      string `header:"Mode"`
+	CreatedBy string `header:"CreatedBy"`
 }
 
 type IPResponsePrinter struct {
