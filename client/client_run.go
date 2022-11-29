@@ -2,7 +2,6 @@ package client
 
 import (
 	"fmt"
-	"io"
 	"log"
 
 	"github.com/tobiaszgithub/cig/config"
@@ -82,18 +81,4 @@ func RunUpdateFlowConfigs(conf config.Configuration, flowName string, configs []
 	fmt.Println(resp)
 	//resp.Print()
 
-}
-
-//RunTransportFlow - call the function TransportFlow
-func RunTransportFlow(out io.Writer, conf config.Configuration, srcFlowID string, destFlowID string, destTenantKey string, destFlowName string, destPackageID string) {
-
-	destConf, err := config.NewConfiguration(destTenantKey)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = TransportFlow(out, conf, srcFlowID, destConf, destFlowID, destFlowName, destPackageID)
-	if err != nil {
-		log.Fatal(err)
-	}
 }
