@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -44,7 +44,7 @@ func InspectFlow(conf config.Configuration, flowID string, version string) (*mod
 
 	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
 	if !statusOk {
-		body, err := ioutil.ReadAll(response.Body)
+		body, err := io.ReadAll(response.Body)
 		if err != nil {
 			return nil, fmt.Errorf("cannot read body: %w", err)
 		}

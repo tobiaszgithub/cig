@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
@@ -30,9 +31,9 @@ an integration flow of designtime. `,
 			log.Fatal("Required parameter destination-flow-id not set")
 		}
 		destFlowName, _ := cmd.Flags().GetString("dest-flow-name")
-		destPackageId, _ := cmd.Flags().GetString("dest-package-id")
+		destPackageID, _ := cmd.Flags().GetString("dest-package-id")
 
-		client.RunCopyFlow(conf, args[0], args[1], destFlowName, destPackageId)
+		client.RunCopyFlow(os.Stdout, conf, args[0], args[1], destFlowName, destPackageID)
 
 	},
 }

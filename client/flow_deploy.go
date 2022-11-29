@@ -45,7 +45,6 @@ func DeployFlow(out io.Writer, conf config.Configuration, id string, version str
 	httpClient := getClient(conf)
 
 	response, err := httpClient.Do(request)
-
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrConnection, err)
 	}

@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tobiaszgithub/cig/client"
@@ -28,7 +29,7 @@ Integration flows of configure-only packages cannot be downloaded.`,
 		}
 		fileName, _ := cmd.Flags().GetString("output-file")
 		version, _ := cmd.Flags().GetString("version")
-		client.RunDownloadFlow(conf, args[0], version, fileName)
+		client.RunDownloadFlow(os.Stdout, conf, args[0], version, fileName)
 	},
 }
 
