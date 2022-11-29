@@ -504,7 +504,15 @@ func adjustDownloadedFlow(srcFlowID, destFlowID string, zipFile string) (newZipF
 	log.Printf("file: %s has been unzipped to directory %s\n", zipFile, fileDestinationFolder)
 
 	manifestFile := filepath.Join(fileDestinationFolder, "META-INF/MANIFEST.MF")
-	oldValue := "SymbolicName: " + srcFlowID
+	//No line may be longer than 72 bytes (not characters), in its UTF8-encoded form.
+	//"Bundle-SymbolicName: " + 49 characters (flowName is in ASCII)
+	oldValue := ""
+	if len(srcFlowID) > 49 {
+		oldValue = "SymbolicName: " + srcFlowID[0:49] + "\r\n" + " " + srcFlowID[49:]
+	} else {
+		oldValue = "SymbolicName: " + srcFlowID
+	}
+
 	newValue := "SymbolicName: " + destFlowID
 	err = replaceFileContent(manifestFile, oldValue, newValue)
 	if err != nil {
