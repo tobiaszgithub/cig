@@ -73,6 +73,14 @@ func GetFlowConfigs(conf config.Configuration, flowName string, version string) 
 
 	var decodedRes model.FlowConfigurations
 
+	// b, err := io.ReadAll(response.Body)
+	// // b, err := ioutil.ReadAll(resp.Body)  Go.1.15 and earlier
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+
+	// fmt.Println(string(b))
+
 	if err := json.NewDecoder(response.Body).Decode(&decodedRes); err != nil {
 		return nil, err
 	}

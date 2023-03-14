@@ -64,7 +64,7 @@ func DownloadFlow(out io.Writer, conf config.Configuration, flowID string, versi
 		return err
 	}
 
-	output := fmt.Sprintf("Content downloaded.\n")
+	output := "Content downloaded.\n"
 	output += fmt.Sprintf("number of bytes: %d", n)
 	fmt.Fprintf(out, "%s", output)
 	return nil
