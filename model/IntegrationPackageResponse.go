@@ -95,6 +95,10 @@ type IntegrationFlow struct {
 	Description string   `json:"Description"`
 	Sender      string   `json:"Sender"`
 	Receiver    string   `json:"Receiver"`
+	CreatedBy   string   `json:"CreatedBy"`
+	CreatedAt   string   `json:"CreatedAt"`
+	ModifiedBy  string   `json:"ModifiedBy"`
+	ModifiedAt  string   `json:"ModifiedAt"`
 }
 
 type Metadata struct {
