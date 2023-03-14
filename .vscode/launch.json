@@ -32,7 +32,7 @@
       "args": ["flow", "update-configs", "PurchaseOrder", "-f", "purchaseOrder.json" ]
     },
     {
-      "name": "cloud-foundry-dev: flow describe-configs PurchaseOrder --output-file",
+      "name": "cloud-foundry-dev-basic: flow describe-configs PurchaseOrder --output-file",
       "type": "go",
       "request": "launch",
       "mode": "auto",
