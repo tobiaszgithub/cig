@@ -3,13 +3,13 @@ module github.com/tobiaszgithub/cig
 go 1.18
 
 require (
-	github.com/spf13/cobra v1.6.1
+	github.com/spf13/cobra v1.7.0
 	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401
 )
 
 require (
 	github.com/b3ntly/go-authhttp v0.0.0-20170604023458-34d5e23b706f // indirect
-	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 )
 
